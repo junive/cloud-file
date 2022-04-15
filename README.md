@@ -1,4 +1,11 @@
-# JunivePhotos
+# Install package 
+
+material : `npm install --save @angular/material @angular/cdk`
+flexbox : `npm install --save @angular/flex-layout`
+random id : `npm install --save uuid` (or types/uuid)?
+
+
+# JuniveCloudFile
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.0.
 

@@ -1,0 +1,15 @@
+<div style="padding: 100px; height: 100%; box-sizing: border-box;">
+    <mat-card style="height: 100%; box-sizing: border-box; padding:0">
+      <file-explorer #fileExplorer
+        [fileList]="fileList"
+        (addFolderEvent)="addFolder($event)"
+        (removeFileEvent)="removeFile($event)"
+        (renameFileEvent)="renameFile($event)"
+        (goToFolderEvent)="goToFolder($event)"
+        (moveFileEvent)="moveFile($event)" 
+        >
+      </file-explorer>
+    </mat-card>
+  </div>
+
+
