@@ -1,5 +1,3 @@
 import { MyFile } from "./my-file";
 
-export interface MyFolder extends MyFile {
-
-  }
+export interface MyFolder extends MyFile { }

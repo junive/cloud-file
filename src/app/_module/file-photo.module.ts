@@ -6,6 +6,7 @@ import { AppRoutingModule } from '../app-routing.module';
 import { FileExplorerModule } from './file-explorer.module';
 import { FilePhotoService } from '../_service/file-photo.service';
 import { FilePhotoComponent } from '../file-photo/file-photo.component';
+import { FileExplorerComponent } from '../file-explorer/file-explorer.component';
 
 
 @NgModule({
@@ -20,8 +21,10 @@ import { FilePhotoComponent } from '../file-photo/file-photo.component';
     MatCardModule
   ],
   providers: [
+    FileExplorerComponent,
     FilePhotoService
   ],
+  
   exports: [
     FilePhotoComponent
   ],

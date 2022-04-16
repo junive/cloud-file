@@ -1,8 +1,8 @@
 <mat-toolbar>
   <div 
     class="pointer" 
-    *ngFor="let folder of navGoTo"
-    (click)="goToFolderEmit(folder)" 
+    *ngFor="let folder of navFoldersReact"
+    (click)="navigateFolderEmit(folder)" 
   >
     {{ folder.name }} // 
   </div>
@@ -17,10 +17,8 @@
   
 
 
-
-
-
 <div
+
   class="container"
   fxFlex
   fxLayout="row"
@@ -39,33 +37,32 @@
     
     
      <mat-grid-tile
-      
-        *ngFor="let file of fileList.getCurrentFiles()"
-        class="file-or-folder" >
-        <span
-          [matMenuTriggerFor]="rootMenu"
-          [matMenuTriggerData]="{file: file}"
-          #menuTrigger="matMenuTrigger" >
-        </span>
+        class="file-or-folder"
+        *ngFor="let file of fileListReact.getCurrentFiles()"
+      >
         <div
           fxLayout="column"
           fxLayoutAlign="space-between center"
-          (dblclick)="goToFolderEmit(file)"
-          (contextmenu)="openMenu($event, file, menuTrigger)"  >
+        >
           <mat-icon
+            [attr.fileId]="file.id"
             color="primary"
             class="file-or-folder-icon pointer"
-            *ngIf="file.isFolder" >
+            *ngIf="file.isFolder" 
+          >
             folder
           </mat-icon>
           <mat-icon
+            [attr.fileId]="file.id"
             color="primary"
             class="file-or-folder-icon pointer"
             *ngIf="!file.isFolder" >
             insert_drive_file
           </mat-icon>
-
-          <span>{{file.name}}</span>
+ 
+          <span [attr.fileId]="file.id" >
+            {{file.name}}
+          </span>
         </div>
       </mat-grid-tile>
     
@@ -75,37 +72,69 @@
   </div>
 </div>
 
+<input type="text" id="toto" name="name" required
+       minlength="4" size="10">
+<!-- <span id="buttonElemId" 
+  #myOpenMenuFileButton="matMenuTrigger"
+  [matMenuTriggerFor]="myMenuFile"
+>
+</span> -->
+<button [hidden]="true"
+  #myOpenMenuFileButton="matMenuTrigger"
+  [matMenuTriggerFor]="myMenuFile"
+  mat-icon-button
+>
+  <mat-icon>more_vert</mat-icon>
+</button>
 
-<mat-menu #rootMenu="matMenu" [overlapTrigger]="false">
-  <ng-template matMenuContent let-file="file">
-  <!--  <button 
-      mat-menu-item 
-      [matMenuTriggerFor]="moveToMenu" 
-      [matMenuTriggerData]="{self: element}">
-      <mat-icon>open_with</mat-icon>
-      <span>Move To</span>
-    </button> -->
-    <button mat-menu-item (click)="openRenameDialog(file)">
-      <mat-icon>edit</mat-icon>
-      <span>Rename</span>
-    </button>
-    <button mat-menu-item (click)="deleteFileEmit(file)">
-      <mat-icon>delete</mat-icon>
-      <span>Delete</span>
-    </button>
+<mat-menu #myMenuFile="matMenu" [overlapTrigger]="false">
+  <ng-template matMenuContent let-file="fileMenuReact">
+
+    <button 
+    mat-menu-item 
+    [matMenuTriggerFor]="mySubMenuFile" 
+    [matMenuTriggerData]="{shareFileToSub: file}"
+  >
+    <mat-icon>open_with</mat-icon>
+    <span>Move To</span>
+  </button> 
   </ng-template>
 </mat-menu>
-    
-<mat-menu #moveToMenu="matMenu">
-    <ng-template matMenuContent let-self="self">
-      <ng-container *ngFor="let file of fileList.getCurrentFiles()">
+ 
+<mat-menu #mySubMenuFile="matMenu" >
+    <ng-template matMenuContent let-currentFile="shareFileToSub">
+       <ng-container *ngFor="let file of fileListReact.getCurrentFiles()">
         <button
-          *ngIf="file.isFolder && file.id !== self.id"
+          *ngIf="file.isFolder && currentFile.id !== file.id"
           mat-menu-item
-          (click)="moveFile(self, file)">
+          (click)="moveFileEmit(file, file)">
           {{file.name}}
         </button>
       </ng-container>
     </ng-template>
   </mat-menu>
   
+
+  
+  <ul #menuContext 
+    [class.show]="selectedFiles.length > 0"
+    [className]="'dropdown-menu'">
+    <li>
+      <a role="button"
+        [innerHTML] = "'Rename'"
+        [class.disabled]="selectedFiles.length > 1"
+        [className]="'dropdown-item'"
+        (click)="openRenameDialog(selectedFiles)"
+      > </a>
+    </li>
+    <li>
+      <a role="button"
+        [innerHTML] = "'Delete'"
+        [className] = "'dropdown-item'"
+        (click)="deleteFileEmit(selectedFiles)"
+      ></a>
+    </li>
+    <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
+  </ul>
+<!--   
+ "  -->

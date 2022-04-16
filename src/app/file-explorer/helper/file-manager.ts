@@ -1,53 +1,68 @@
-import { Component, Injectable, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injectable, OnInit, ViewChild } from '@angular/core';
 import { MyFile } from '../../_model/my-file';
 import { MyFileList } from './my-file-list';
 import { MyFolder } from '../../_model/my-folder';
 import { FileExplorerComponent } from '../file-explorer.component';
 
 @Injectable()
-export class FileManager implements OnInit {
+export class FileManager {
   title = 'file-Manager';
   fileList: MyFileList = new MyFileList();
-  @ViewChild('fileExplorer') fileExplorer!: FileExplorerComponent;
+  navFolders!: MyFolder[];
   
-  constructor() {  }
+  constructor( ) {  }
 
   ngOnInit() { }
 
-  addFolder(folder: MyFolder ) {
-    if (this.fileList.hasSameFile(folder.name)) {
-      alert("Folder '"+folder.name +"' already Exist");
-    } else this.fileList.addFolder(folder); 
-    this.fileList.sortbyNameASC();
-  }
-  
-  moveFile(event: { file: MyFile; moveTo: MyFile }) {
-   // this.fileService.update(event.element.id!, { parent: event.moveTo.id });
-   // this.updateFileElementQuery();
+  // File-explorer check if navFolder is defined
+  showNavigateFolder() {
+    this.navFolders = [this.fileList.getRootFolder()];
   }
 
-  navigateUp() {
 
+  addFolder(folderName: string ) {
+    if (this.fileList.hasSameFile(folderName)) {
+      alert("Folder '"+folderName +"' already Exist");
+    } else {
+      this.fileList.addFolderToCurrent(folderName); 
+      this.fileList.sortbyNameASC();
+    }
   }
-  
-  goToFolder(folder: MyFolder) { 
+
+  deleteFile(files: MyFile[]) {
+    files.forEach(file => {
+      this.fileList.deleteFiles([file]);
+    });
+  }
+
+
+  openFileById(fileId: string) {
+    const file: MyFile = this.fileList.getFileInCurrentById(fileId);
+    
+    if (file && file.isFolder) this.openFolder(<MyFolder>file);
+  }
+
+  openFolder(folder: MyFolder) {
+    if (this.navFolders) {
+      let newNav : MyFolder[] = [];
+      for (let nav of this.navFolders) {
+        if (folder.id == nav.id) break;
+        newNav.push(nav);
+      };
+      newNav.push(folder);
+      this.navFolders = newNav;
+    }
     this.fileList.setCurrentFolder(folder);
   }
 
-  pushToPath(path: string, folderName: string) {
-
-  }
-  
-  popFromPath(path: string) {
-
+  moveFile(event: { file: MyFile; moveTo: MyFile }) {
+    // this.fileService.update(event.element.id!, { parent: event.moveTo.id });
+    // this.updateFileElementQuery();
   }
 
   renameFile(event : {file: MyFile, newName : string} ) {
     event.file.name = event.newName;
-  }
-   
-  removeFile(file: MyFile) {
-    this.fileList.deleteFiles([file]);
+    this.fileList.sortbyNameASC();
   }
 
 }

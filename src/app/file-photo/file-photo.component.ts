@@ -1,23 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FilePhotoService } from '../_service/file-photo.service';
 import { FileManager } from '../file-explorer/helper/file-manager';
+import { FileExplorerComponent } from '../file-explorer/file-explorer.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'file-photo',
   templateUrl: './file-photo.component.html',
   styleUrls: ['./file-photo.component.css']
 })
+
 export class FilePhotoComponent extends FileManager {
   override title = 'file-photo';
+  //@ViewChild(FileExplorerComponent) fileExplorerPhoto!: FileExplorerComponent;
 
   constructor(public fileService: FilePhotoService) {
     super();
+    //super.showNavigateFolder();
   }
 
   override ngOnInit() {
     super.ngOnInit()
-    this.fileList.addFolder({ name: 'Fold Photo', parentId: 'root' });
-    this.fileList.addFile({ name: 'File Photo',  parentId: 'root' });
+    this.fileList.addFolder({ name: 'Fold Photo', parentId: environment.ROOT_FOLDER_ID });
+    this.fileList.addFile({ name: 'File Photo',  parentId: environment.ROOT_FOLDER_ID });
   }
 /*
   updateFileElementQuery() {

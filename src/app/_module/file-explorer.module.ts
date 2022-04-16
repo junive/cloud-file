@@ -37,10 +37,6 @@ import { BrowserModule } from '@angular/platform-browser'
     FileExplorerComponent,
     NewFolderDialogComponent,
     RenameDialogComponent
-  ],
-  entryComponents: [
-    NewFolderDialogComponent, 
-    RenameDialogComponent
   ]
 })
 export class FileExplorerModule {}

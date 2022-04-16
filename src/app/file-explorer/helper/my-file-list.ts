@@ -5,18 +5,27 @@ import { MyFile } from "../../_model/my-file";
 
 export class MyFileList {
   private mapFiles = new Map<string, MyFile[]>();
-  private currentFolder: MyFolder = <MyFolder> environment.API_ROOT_FOLDER;
-  
-  constructor() {
+  private rootFolder: MyFolder = <MyFolder>{
+    id:  environment.ROOT_FOLDER_ID,
+    name: environment.ROOT_FOLDER_NAME,
+    parentId:"-1"
+  };
+  private currentFolder: MyFolder =  this.rootFolder;
+
+  constructor() { 
     this.addFolder(this.currentFolder); // add Root
   }
 
-  // Should never be used, even in this class
-  private add(file: MyFile) : MyFile {   
-    if (!this.mapFiles.get(file.parentId)) {
-      this.mapFiles.set(file.parentId, []);
-    }
+  private add(file: MyFile) : MyFile {  
     if (!file.id) file.id = v4(); // Root already have an id !
+    if (file.isFolder && !this.mapFiles.get(file.id!)) {
+      this.mapFiles.set(file.id!, []);
+    } 
+    // Trying to put a file before it's parent
+    if (!this.mapFiles.get(file.parentId!)) { 
+      this.mapFiles.set(file.parentId!, []);
+    }
+   
     this.mapFiles.get(file.parentId)!.push(file);
     return file;
   }
@@ -29,6 +38,14 @@ export class MyFileList {
   addFolder(folder: MyFolder) : MyFolder {
     folder.isFolder = true;
     return this.add(folder);
+  }
+
+  addFolderToCurrent(folderName: string): MyFolder {
+    const folder: MyFolder = {
+      name: folderName,
+      parentId: this.getCurrentFolder().id!
+    }
+    return this.addFolder(folder);
   }
 
   // Should not be used in public : recursive
@@ -65,11 +82,21 @@ export class MyFileList {
   }
 
   getCurrentFiles(): MyFile[] {
-    return this.mapFiles.get(this.currentFolder.id!)!;
+    return this.mapFiles.get(this.getCurrentFolder().id!)!;
   }
 
-  getCurrentPathId(): string {
-    return this.currentFolder.id!;
+  getFileInCurrentById(fileId: string): MyFile {
+    return <MyFile> this.getCurrentFiles().find(
+      file => file.id == fileId
+    )!;
+  }
+
+  getRootFolder(): MyFolder {
+      return this.rootFolder;
+  }
+
+  getCurrentFolder(): MyFolder {
+    return this.currentFolder;
   }
   
   getMapFiles(): Map<string, MyFile[]>{

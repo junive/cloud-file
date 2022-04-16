@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  API_ROOT_FOLDER : {id: "root", name:"Home", parentId:"-1"}
+  ROOT_FOLDER_ID: "root",
+  ROOT_FOLDER_NAME : "Home"
 };
 
 /*
