@@ -1,11 +1,13 @@
-import { Component, Input, Output, EventEmitter, ViewChild, HostListener, ElementRef } from '@angular/core'
-import { MatMenuTrigger } from '@angular/material/menu';
+import { Component, Input, Output, EventEmitter, ViewChild, HostListener, ElementRef, TemplateRef } from '@angular/core'
 import { MyFile } from '../_model/my-file';
-import { MatDialog } from '@angular/material/dialog';
-import { NewFolderDialogComponent } from './modals/new-folder-dialog/new-folder-dialog.component';
-import { RenameDialogComponent } from './modals/rename-dialog/rename-dialog.component';
 import { MyFileList } from './helper/my-file-list';
 import { MyFolder } from '../_model/my-folder';
+import { MySimpleDialog } from '../_model/my-simple-dialog';
+import { DialogEnum } from '../dialog/helper/dialog-enum';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DialogUtil } from '../dialog/helper/dialog-util';
+import { MyFileExplorer } from '../_model/my-file-explorer';
+import { MyDialog } from '../_model/my-dialog';
 
 @Component({
   selector: "file-explorer",
@@ -13,31 +15,34 @@ import { MyFolder } from '../_model/my-folder';
   styleUrls: ['./file-explorer.component.css'],
 })
 
-export class FileExplorerComponent {
+
+
+export class FileExplorerComponent implements MyFileExplorer, MyDialog {
 
  // @ViewChild('fileContainer', { read: ViewContainerRef }) fileContainer!: ViewContainerRef;
  // @ViewChild('fileTemplate', { read: TemplateRef }) fileTemplate!: TemplateRef<any>;
-  @ViewChild("myOpenMenuFileButton") menuButtonFile!: MatMenuTrigger;
-  @ViewChild("menuContext") menuContext!: ElementRef;
 
-  @Input() selectedFiles: MyFile[] = [];
-  @Input() navFoldersReact: MyFolder[] | undefined;
+  @ViewChild("contextMenuRef") contextMenuRef!: ElementRef;
+  @ViewChild("dialogTemplate") dialogTemplateRef!: TemplateRef<any>;
+
   @Input() fileListReact: MyFileList = new MyFileList();
+  @Input() public navFoldersReact: MyFolder[] =[];
 
-  @Output() addFolderEvent = new EventEmitter<string>()
+  public dialog!: MySimpleDialog;
+  public dialogEnum = DialogEnum;
+  public selectedFiles: MyFile[] = [];
+  public modalRef?: NgbModalRef;
+  
+  @Output() addFolderEvent = new EventEmitter<MySimpleDialog>()
   @Output() openFileEvent = new EventEmitter<string>()
   @Output() navigateFolderEvent = new EventEmitter<MyFolder>()
   @Output() moveFileEvent = new EventEmitter<{
     file: MyFile, moveTo: MyFile }>()
   @Output() deleteFileEvent = new EventEmitter<MyFile[]>()
-  @Output() renameFileEvent = new EventEmitter<{
-   file: MyFile, newName: string }>()
-   
-   
+  @Output() renameFileEvent = new EventEmitter<MySimpleDialog>()
    
 
-  constructor(public dialog: MatDialog) {  }
-
+  constructor(private modalService: NgbModal ) {  }
 
   ngOnInit() { }
 
@@ -55,7 +60,6 @@ export class FileExplorerComponent {
     if (fileId) this.openFileEvent.emit(fileId);
   }
 
-  
   @HostListener('contextmenu', ['$event'])
   onContextMenu(event: MouseEvent) {
     event.preventDefault();
@@ -64,18 +68,10 @@ export class FileExplorerComponent {
     const fileId: string = targetElem.getAttribute("fileId")!;
     const file: MyFile = this.fileListReact.getFileInCurrentById(fileId);
     if (!targetElem || !fileId || !file) return;
-    //const buttonElem: HTMLElement = document.getElementById("toto")!;
-    this.selectedFiles.push(file);
-    //const rect = targetElem.getBoundingClientRect();
-    
-    this.menuContext.nativeElement.style.left = event.pageX + 'px'; 
-    this.menuContext.nativeElement.style.top =  event.pageY  + 'px'; 
-    //this.menuContext.nativeElement.classList.add("show");
-    //this.menuContext.nativeElement.innerHTML = "TOTO";
-    //console.log( this.menuContext.nativeElement.innerHTML) 
-    // targetElem.appendChild(buttonElem);
-    //this.menuButtonFile.menuData = {  fileMenuReact : file  }
-    //this.menuButtonFile.openMenu();
+    // ToDo : improve the position on scroll, offPage etc... 
+    this.contextMenuRef.nativeElement.style.left = event.pageX + 'px'; 
+    this.contextMenuRef.nativeElement.style.top =  event.pageY  + 'px'; 
+    this.selectedFiles.push(file); // Show context menu
   }
 
   //getFileContainer(): ViewContainerRef {
@@ -98,6 +94,57 @@ export class FileExplorerComponent {
     this.navigateFolderEvent.emit(folder);
   }
  
+  closeDialog() {
+    this.dialog.event!.emit(this.dialog);
+    setTimeout(()=> {
+      if (this.dialog.error != undefined) return;
+      this.modalRef!.close();
+    }, 10)
+  }
+
+  dismissDialog() {
+    this.modalRef!.dismiss();
+  }
+
+  addDialogInfo(): void {
+    if (this.dialog.enum == DialogEnum.RENAME_FILE) {
+      this.dialog.title = "Rename the file";
+      this.dialog.name = this.dialog.file!.name;
+      this.dialog.event = this.renameFileEvent;
+    }
+    if (this.dialog.enum == DialogEnum.NEW_FOLDER) {
+      this.dialog.title = "Add new Folder";
+      this.dialog.event = this.addFolderEvent;
+    }
+  }
+
+  //async 
+  openDialog(dialogEvent: MySimpleDialog) {
+    //const prom =  new Promise<boolean>(resolve => {
+      this.dialog = dialogEvent; // Send infos to dialogReact
+      this.dialog.callback = this;
+      this.addDialogInfo();
+      this.modalRef = this.modalService.open(this.dialogTemplateRef);
+      this.modalRef.shown.subscribe({
+        next: () => { // Autofocus bug
+          document.getElementById('inputFromRenameDialog')!.focus();
+        }
+      });
+/*
+      this.modalRef.closed.subscribe({
+        next: () => {
+          this.dialogRequest.event?.emit(this.dialogRequest);
+          //dialogResponse.event?.emit(dialogResponse);
+        }
+      });
+      */
+
+     // this.dialog.modalRef.result.then(resolve, resolve);
+     //})
+   // return await prom;
+  }
+
+  /*
   openNewFolderDialog() {
     let dialogRef = this.dialog.open(NewFolderDialogComponent);
     dialogRef.afterClosed().subscribe({
@@ -107,13 +154,6 @@ export class FileExplorerComponent {
     }});
   }
   
-  openRenameDialog(files: MyFile[]) {
-    let dialogRef = this.dialog.open(RenameDialogComponent);
-    dialogRef.afterClosed().subscribe(fileName => {
-      if (!fileName) return;
-      this.renameFileEvent.emit({file:files[0], newName : fileName});
-    });
-  }
-
+*/
 
 }

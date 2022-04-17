@@ -11,9 +11,9 @@ import { MatInputModule } from '@angular/material/input'
 import { MatButtonModule } from '@angular/material/button'
 import { FormsModule } from '@angular/forms'
 import { FileExplorerComponent } from '../file-explorer/file-explorer.component';
-import { NewFolderDialogComponent } from '../file-explorer//modals/new-folder-dialog/new-folder-dialog.component';
-import { RenameDialogComponent } from '../file-explorer/modals/rename-dialog/rename-dialog.component'
+import { SimpleDialogComponent } from '../dialog/simple-dialog/simple-dialog.component'
 import { BrowserModule } from '@angular/platform-browser'
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
 
 @NgModule({
   imports: [
@@ -28,15 +28,19 @@ import { BrowserModule } from '@angular/platform-browser'
     MatDialogModule,
     MatInputModule,
     FormsModule,
-    MatButtonModule
+    MatButtonModule,
+    NgbModule
   ],
   exports: [
     FileExplorerComponent,
   ],
+  providers: [
+    SimpleDialogComponent
+  ],
+  entryComponents: [SimpleDialogComponent], //Only Modal component included here
   declarations: [
     FileExplorerComponent,
-    NewFolderDialogComponent,
-    RenameDialogComponent
+    SimpleDialogComponent
   ]
 })
 export class FileExplorerModule {}

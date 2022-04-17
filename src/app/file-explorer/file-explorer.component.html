@@ -8,9 +8,11 @@
   </div>
 
   <span class="spacer"></span>
-  <mat-icon 
+   <mat-icon 
     class="pointer" 
-    (click)="openNewFolderDialog()">
+    (click)="openDialog({
+      enum: dialogEnum.NEW_FOLDER
+    })">
     create_new_folder
   </mat-icon>
 </mat-toolbar>
@@ -24,6 +26,8 @@
   fxLayout="row"
   fxLayoutAlign="space-between stretch" >
   <div class="content" fxFlex fxLayout="row">
+
+
     <ng-container #fileContainer>
 
     <mat-grid-list cols="8" rowHeight="100px" fxFlex>
@@ -115,26 +119,32 @@
   </mat-menu>
   
 
-  
-  <ul #menuContext 
-    [class.show]="selectedFiles.length > 0"
-    [className]="'dropdown-menu'">
-    <li>
-      <a role="button"
-        [innerHTML] = "'Rename'"
-        [class.disabled]="selectedFiles.length > 1"
-        [className]="'dropdown-item'"
-        (click)="openRenameDialog(selectedFiles)"
-      > </a>
-    </li>
-    <li>
-      <a role="button"
-        [innerHTML] = "'Delete'"
-        [className] = "'dropdown-item'"
-        (click)="deleteFileEmit(selectedFiles)"
-      ></a>
-    </li>
-    <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
-  </ul>
-<!--   
- "  -->
+
+
+<ul #contextMenuRef
+  [class.show]="selectedFiles.length > 0"
+  [className]="'dropdown-menu'">
+  <li>
+    <a role="button"
+      [innerHTML] = "'Rename'"
+      [class.disabled]="selectedFiles.length > 1"
+      [className]="'dropdown-item'"
+      (click)="openDialog({
+        file: selectedFiles[0], 
+        enum:dialogEnum.RENAME_FILE
+      })"
+    > </a>
+  </li>
+  <li>
+    <a role="button"
+      [innerHTML] = "'Delete'"
+      [className] = "'dropdown-item'"
+      (click)="deleteFileEmit(selectedFiles)"
+    ></a>
+  </li>
+  <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
+</ul> -->
+ 
+<ng-template #dialogTemplate>
+  <rename-modal  [dialogReact]="dialog" > </rename-modal>
+</ng-template>

@@ -3,6 +3,8 @@ import { MyFile } from '../../_model/my-file';
 import { MyFileList } from './my-file-list';
 import { MyFolder } from '../../_model/my-folder';
 import { FileExplorerComponent } from '../file-explorer.component';
+import { MySimpleDialog } from 'src/app/_model/my-simple-dialog';
+import { DialogErrorEnum } from 'src/app/dialog/helper/dialog-enum';
 
 @Injectable()
 export class FileManager {
@@ -19,12 +21,12 @@ export class FileManager {
     this.navFolders = [this.fileList.getRootFolder()];
   }
 
-
-  addFolder(folderName: string ) {
-    if (this.fileList.hasSameFile(folderName)) {
-      alert("Folder '"+folderName +"' already Exist");
+  addFolder(dialog:MySimpleDialog ) {
+    if (!dialog.name || dialog.name == "") return;
+    if (this.fileList.hasSameFile(dialog.name)) {
+      dialog.error = DialogErrorEnum.FOLDER_EXIST;
     } else {
-      this.fileList.addFolderToCurrent(folderName); 
+      this.fileList.addFolderToCurrent(dialog.name); 
       this.fileList.sortbyNameASC();
     }
   }
@@ -60,8 +62,9 @@ export class FileManager {
     // this.updateFileElementQuery();
   }
 
-  renameFile(event : {file: MyFile, newName : string} ) {
-    event.file.name = event.newName;
+  renameFile(dialog: MySimpleDialog) {
+    if (!dialog.name || dialog.name == "") return;
+    dialog.file!.name = dialog.name;
     this.fileList.sortbyNameASC();
   }
 

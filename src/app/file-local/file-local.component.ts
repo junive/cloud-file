@@ -35,7 +35,7 @@ export class FileLocalComponent extends FileManager {
   
     for (let i =0; i<1000; i++) {
     
-   // const folder: MyFolder = this.fileList.addFolder({ name: 'Folder 0', parentId: environment.ROOT_FOLDER_ID });
+    //const folder: MyFolder = this.fileList.addFolder({ name: 'Folder 0', parentId: environment.ROOT_FOLDER_ID });
       //const folder: MyFolder = titi.addFolder({ name: 'Folder 0', parentId: "root" });
      }
     this.fileList.sortbyNameASC();
@@ -44,7 +44,7 @@ export class FileLocalComponent extends FileManager {
    // const interval = setTimeout(() => {
     
     console.log("start loop");
-    //console.time("loopo");
+   // console.time("loopo");
     
   }
   ngAfterViewChecked() {

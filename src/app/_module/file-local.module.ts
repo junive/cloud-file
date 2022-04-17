@@ -7,7 +7,6 @@ import { FileLocalService } from '../_service/file-local.service';
 import { FileLocalComponent } from '../file-local/file-local.component';
 import { FileExplorerComponent } from '../file-explorer/file-explorer.component';
 
-
 @NgModule({
   declarations: [
     FileLocalComponent
@@ -17,11 +16,13 @@ import { FileExplorerComponent } from '../file-explorer/file-explorer.component'
     BrowserModule, 
     FlexLayoutModule, 
     MatCardModule,
+   
   ],
   providers: [
     FileExplorerComponent,
     FileLocalService
-  ],
+  ],   
+ 
   exports: [
     FileLocalComponent
   ],

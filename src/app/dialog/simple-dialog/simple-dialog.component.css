@@ -1,0 +1,4 @@
+.modal {
+    /* ToDo : Fix Bug from Bootstrap */ 
+    display: block !important;
+}

@@ -3,4 +3,4 @@ export interface MyFile {
     isFolder?: boolean
     name: string
     parentId: string
-  }
+}
