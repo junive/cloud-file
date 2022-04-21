@@ -16,13 +16,13 @@ export class FilePhotoComponent extends FileManager {
 
   constructor(public fileService: FilePhotoService) {
     super();
-    //super.showNavigateFolder();
+    this.fileShow.navigation = false;
   }
 
   override ngOnInit() {
     super.ngOnInit()
-    this.fileList.addFolder({ name: 'Fold Photo', parentId: environment.ROOT_FOLDER_ID });
-    this.fileList.addFile({ name: 'File Photo',  parentId: environment.ROOT_FOLDER_ID });
+    this.fileList.createFolder({ name: 'Fold Photo', parentId: environment.ROOT_FOLDER_ID });
+    this.fileList.createFile({ name: 'File Photo',  parentId: environment.ROOT_FOLDER_ID });
   }
 /*
   updateFileElementQuery() {

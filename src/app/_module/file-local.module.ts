@@ -16,11 +16,10 @@ import { FileExplorerComponent } from '../file-explorer/file-explorer.component'
     BrowserModule, 
     FlexLayoutModule, 
     MatCardModule,
-   
   ],
   providers: [
-    FileExplorerComponent,
-    FileLocalService
+    FileLocalService,
+    FileExplorerComponent
   ],   
  
   exports: [

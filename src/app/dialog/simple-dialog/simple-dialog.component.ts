@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
 import { MySimpleDialog } from 'src/app/_model/my-simple-dialog';
 import { DialogEnum, DialogErrorEnum } from '../helper/dialog-enum';
 
@@ -14,7 +14,6 @@ export class SimpleDialogComponent  {
   public dialogEnum = DialogEnum;
   public dialogErrorEnum = DialogErrorEnum;
   public username:string ="";
-
 
   constructor() { }
 

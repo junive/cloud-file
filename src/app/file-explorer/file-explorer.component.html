@@ -1,8 +1,10 @@
+
+
 <mat-toolbar>
   <div 
     class="pointer" 
     *ngFor="let folder of navFoldersReact"
-    (click)="navigateFolderEmit(folder)" 
+    (click)="openFileEmit(folder.id!, folder.isFolder!)" 
   >
     {{ folder.name }} // 
   </div>
@@ -18,119 +20,32 @@
 </mat-toolbar>
   
 
+<ng-container #fileContainerRef> </ng-container>
 
-<div
-
-  class="container"
-  fxFlex
-  fxLayout="row"
-  fxLayoutAlign="space-between stretch" >
-  <div class="content" fxFlex fxLayout="row">
-
-
-    <ng-container #fileContainer>
-
-    <mat-grid-list cols="8" rowHeight="100px" fxFlex>
-
-      
-       
-       <!--<ng-template #fileTemplate let-file="fileInject">
-          <span>{{ file.name }}</span>
-       </ng-template>-->
-      
-    
-    
-     <mat-grid-tile
-        class="file-or-folder"
-        *ngFor="let file of fileListReact.getCurrentFiles()"
-      >
-        <div
-          fxLayout="column"
-          fxLayoutAlign="space-between center"
-        >
-          <mat-icon
-            [attr.fileId]="file.id"
-            color="primary"
-            class="file-or-folder-icon pointer"
-            *ngIf="file.isFolder" 
-          >
-            folder
-          </mat-icon>
-          <mat-icon
-            [attr.fileId]="file.id"
-            color="primary"
-            class="file-or-folder-icon pointer"
-            *ngIf="!file.isFolder" >
-            insert_drive_file
-          </mat-icon>
- 
-          <span [attr.fileId]="file.id" >
-            {{file.name}}
-          </span>
-        </div>
-      </mat-grid-tile>
-    
-    </mat-grid-list>
-
-  </ng-container>
+<ng-template #fileTemplateRef >
+  <div>
+    <div *ngFor="let file of fileListReact.getCurrentFiles()" >   
+      <svg width="5%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path [attr.d]="svg.folder.d"/>
+      </svg>
+      <span [attr.fileId]="file.id"  [attr.isfolder]="file.isFolder">
+        {{file.name}}
+      </span>
+    </div>
   </div>
-</div>
-
-<input type="text" id="toto" name="name" required
-       minlength="4" size="10">
-<!-- <span id="buttonElemId" 
-  #myOpenMenuFileButton="matMenuTrigger"
-  [matMenuTriggerFor]="myMenuFile"
->
-</span> -->
-<button [hidden]="true"
-  #myOpenMenuFileButton="matMenuTrigger"
-  [matMenuTriggerFor]="myMenuFile"
-  mat-icon-button
->
-  <mat-icon>more_vert</mat-icon>
-</button>
-
-<mat-menu #myMenuFile="matMenu" [overlapTrigger]="false">
-  <ng-template matMenuContent let-file="fileMenuReact">
-
-    <button 
-    mat-menu-item 
-    [matMenuTriggerFor]="mySubMenuFile" 
-    [matMenuTriggerData]="{shareFileToSub: file}"
-  >
-    <mat-icon>open_with</mat-icon>
-    <span>Move To</span>
-  </button> 
-  </ng-template>
-</mat-menu>
- 
-<mat-menu #mySubMenuFile="matMenu" >
-    <ng-template matMenuContent let-currentFile="shareFileToSub">
-       <ng-container *ngFor="let file of fileListReact.getCurrentFiles()">
-        <button
-          *ngIf="file.isFolder && currentFile.id !== file.id"
-          mat-menu-item
-          (click)="moveFileEmit(file, file)">
-          {{file.name}}
-        </button>
-      </ng-container>
-    </ng-template>
-  </mat-menu>
-  
-
+</ng-template>
 
 
 <ul #contextMenuRef
-  [class.show]="selectedFiles.length > 0"
+  [class.show]="selectedFilesReact.length > 0"
   [className]="'dropdown-menu'">
   <li>
     <a role="button"
       [innerHTML] = "'Rename'"
-      [class.disabled]="selectedFiles.length > 1"
+      [class.disabled]="selectedFilesReact.length > 1"
       [className]="'dropdown-item'"
       (click)="openDialog({
-        file: selectedFiles[0], 
+        file: selectedFilesReact[0], 
         enum:dialogEnum.RENAME_FILE
       })"
     > </a>
@@ -139,12 +54,39 @@
     <a role="button"
       [innerHTML] = "'Delete'"
       [className] = "'dropdown-item'"
-      (click)="deleteFileEmit(selectedFiles)"
+      (click)="deleteFileEmit()"
     ></a>
   </li>
+<!--    <li>
+    <a role="button"
+      [innerHTML] = "'Move To >'"
+      [className] = "'dropdown-item'"
+      (mouseover)="openMoveFileMenu($event)"
+      (mouseout)="closeMoveFileMenu()"
+    ></a>
+  </li>  -->
   <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
-</ul> -->
+</ul> 
  
+
+ <!-- <ul #moveFileMenuRef
+  [class.show]="false"
+  [className]="'dropdown-menu'"
+  (mouseout)="closeMoveFileMenu()"
+  (mouseover)="openMoveFileMenu($event)"
+  *ngIf="selectedFilesReact.length == 1"
+>
+  <li *ngFor="let file of fileListReact.getCurrentFiles()" >
+    <a *ngIf="file.isFolder && selectedFilesReact[0].id !== file.id" 
+      role="button"
+      [innerHTML] = "file.name"
+      [className]="'dropdown-item'"
+      (click)="moveFileEmit(file.id!)"
+    ></a>
+  </li>
+</ul>  -->
+
 <ng-template #dialogTemplate>
   <rename-modal  [dialogReact]="dialog" > </rename-modal>
 </ng-template>
+

@@ -1,3 +1,5 @@
+import { NgModule } from "@angular/core";
+
 export enum DialogEnum {
   RENAME_FILE,
   NEW_FOLDER

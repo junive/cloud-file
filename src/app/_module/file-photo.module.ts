@@ -21,7 +21,6 @@ import { FileExplorerComponent } from '../file-explorer/file-explorer.component'
     MatCardModule
   ],
   providers: [
-    FileExplorerComponent,
     FilePhotoService
   ],
   

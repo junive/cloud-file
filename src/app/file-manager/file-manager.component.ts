@@ -1,13 +1,18 @@
-import { Component, ElementRef, Injectable, OnInit, ViewChild } from '@angular/core';
-import { MyFile } from '../../_model/my-file';
-import { MyFileList } from './my-file-list';
-import { MyFolder } from '../../_model/my-folder';
-import { FileExplorerComponent } from '../file-explorer.component';
-import { MySimpleDialog } from 'src/app/_model/my-simple-dialog';
-import { DialogErrorEnum } from 'src/app/dialog/helper/dialog-enum';
+import { Component, Injectable, OnInit } from '@angular/core';
+import { environment } from 'src/environments/environment';
+import { DialogErrorEnum } from '../dialog/helper/dialog-enum';
+import { MyFileList } from '../file-explorer/helper/my-file-list';
+import { MyFile } from '../_model/my-file';
+import { MyFolder } from '../_model/my-folder';
+import { MySimpleDialog } from '../_model/my-simple-dialog';
 
-@Injectable()
-export class FileManager {
+@Component({
+  selector: 'my-file-manager',
+  templateUrl: './file-manager.component.html',
+  styleUrls: ['./file-manager.component.css']
+})
+
+export class FileManagerComponent implements OnInit {
   title = 'file-Manager';
   fileList: MyFileList = new MyFileList();
   navFolders!: MyFolder[];
@@ -19,11 +24,21 @@ export class FileManager {
   constructor( ) {  }
 
   ngOnInit() {
-      // File-explorer check if navFolder is defined
-    if (this.fileShow.navigation) 
+    // File-explorer check if navFolder is defined
+    if (this.fileShow.navigation) {
       this.navFolders = [this.fileList.getRootFolder()];
-   }
+    }
 
+    const folderA = this.fileList.createFolder({name: 'Folder _A', parentId: environment.ROOT_FOLDER_ID }); 
+    const folderAB = this.fileList.createFolder({ name: 'Folder B', parentId: folderA.id! });
+    this.fileList.createFolder({ name: 'Folder ABC', parentId: folderAB.id! });
+    this.fileList.createFile({ name: 'File ABC', parentId: folderAB.id! });
+    this.fileList.createFolder({name: 'Folder E', parentId: environment.ROOT_FOLDER_ID });
+    this.fileList.createFolder({name: 'Folder C', parentId: environment.ROOT_FOLDER_ID });
+    this.fileList.createFile({ name: 'File A', parentId: environment.ROOT_FOLDER_ID }); 
+    this.fileList.createFile({ name: 'File B', parentId: environment.ROOT_FOLDER_ID }); 
+
+   }
 
   addFolder(dialog:MySimpleDialog ) {
     if (!dialog.name || dialog.name == "") return;

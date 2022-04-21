@@ -1,34 +1,30 @@
-<div class="modal">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+
       <div class="modal-header">
         <h5 class="modal-title">{{dialogReact.title}}</h5>
         <button type="button" class="btn-close" (click)="dismiss()" aria-label="Close"></button>
       </div>
-      <div class="modal-body" *ngIf="dialogReact.enum == dialogEnum.RENAME_FILE">
-        <input type="text" 
-            id="inputFromRenameDialog"
-            class="form-control" 
-            [(ngModel)] = "dialogReact.name" 
-            (ngModelChange)="dialogReact.error=undefined"
-            autofocus/>
-      </div>
-      <div class="modal-body" *ngIf="dialogReact.enum == dialogEnum.NEW_FOLDER">
-        <input type="text"
-            class="form-control" 
-            [(ngModel)] = "dialogReact.name"
-            (ngModelChange)="dialogReact.error=undefined"
-            autofocus/>
-      </div> 
-      <div class="alert alert-warning" role="alert" *ngIf="dialogReact.error != undefined">
-        <span *ngIf="dialogReact.error == dialogErrorEnum.FOLDER_EXIST">
-          "Folder '" {{dialogReact.name}} "' already Exist"
-        </span>
+      <div  class="modal-body">
+        <div *ngIf="dialogReact.enum == dialogEnum.RENAME_FILE">
+          <input type="text"
+              class="form-control inputTextSimpleDialog" 
+              [(ngModel)] = "dialogReact.name" 
+              (ngModelChange)="dialogReact.error=undefined"
+              autofocus/>
+        </div>
+        <div *ngIf="dialogReact.enum == dialogEnum.NEW_FOLDER">
+          <input type="text"
+              class="form-control inputTextSimpleDialog" 
+              [(ngModel)] = "dialogReact.name"
+              (ngModelChange)="dialogReact.error=undefined"
+              autofocus/>
+        </div> 
+        <div class="alert alert-warning" role="alert" *ngIf="dialogReact.error != undefined">
+          <span *ngIf="dialogReact.error == dialogErrorEnum.FOLDER_EXIST">
+            "Folder '" {{dialogReact.name}} "' already Exist"
+          </span>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary"  (click)="dismiss()">Close</button>
         <button type="button" class="btn btn-primary" (click)="close()">Save changes</button>
       </div>
-    </div>
-  </div>
-</div>

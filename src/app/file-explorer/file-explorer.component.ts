@@ -1,78 +1,101 @@
-import { Component, Input, Output, EventEmitter, ViewChild, HostListener, ElementRef, TemplateRef } from '@angular/core'
+import { Component, Input, Output, EventEmitter, ViewChild, HostListener, ElementRef, TemplateRef, Renderer2, ViewContainerRef, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core'
 import { MyFile } from '../_model/my-file';
 import { MyFileList } from './helper/my-file-list';
 import { MyFolder } from '../_model/my-folder';
 import { MySimpleDialog } from '../_model/my-simple-dialog';
 import { DialogEnum } from '../dialog/helper/dialog-enum';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DialogUtil } from '../dialog/helper/dialog-util';
-import { MyFileExplorer } from '../_model/my-file-explorer';
 import { MyDialog } from '../_model/my-dialog';
+import { MySvg } from 'src/assets/svg';
+import { Observable } from 'rxjs';
 
 @Component({
-  selector: "file-explorer",
+  selector: "my-file-explorer",
   templateUrl: './file-explorer.component.html',
   styleUrls: ['./file-explorer.component.css'],
 })
 
+export class FileExplorerComponent implements MyDialog {
 
-
-export class FileExplorerComponent implements MyFileExplorer, MyDialog {
-
- // @ViewChild('fileContainer', { read: ViewContainerRef }) fileContainer!: ViewContainerRef;
- // @ViewChild('fileTemplate', { read: TemplateRef }) fileTemplate!: TemplateRef<any>;
+  @ViewChild('fileContainerRef', { read: ViewContainerRef  }) fileContainerRef!: ViewContainerRef;
+  @ViewChild('fileTemplateRef', { read: TemplateRef }) fileTemplateRef!: TemplateRef<any>;
 
   @ViewChild("contextMenuRef") contextMenuRef!: ElementRef;
+  @ViewChild("moveFileMenuRef") moveFileMenuRef!: ElementRef;
   @ViewChild("dialogTemplate") dialogTemplateRef!: TemplateRef<any>;
 
   @Input() fileListReact: MyFileList = new MyFileList();
-  @Input() public navFoldersReact: MyFolder[] =[];
+  @Input() navFoldersReact: MyFolder[] =[];
+  @Input() selectedFilesReact: MyFile[] = [];
 
   public dialog!: MySimpleDialog;
   public dialogEnum = DialogEnum;
-  public selectedFiles: MyFile[] = [];
   public modalRef?: NgbModalRef;
+  public isRefreshingFile = false;
+  public svg = MySvg;
   
   @Output() addFolderEvent = new EventEmitter<MySimpleDialog>()
+  @Output() moveFileEvent = new EventEmitter<string>()
   @Output() openFileEvent = new EventEmitter<string>()
-  @Output() navigateFolderEvent = new EventEmitter<MyFolder>()
-  @Output() moveFileEvent = new EventEmitter<{
-    file: MyFile, moveTo: MyFile }>()
-  @Output() deleteFileEvent = new EventEmitter<MyFile[]>()
+  @Output() openFolderEvent = new EventEmitter<string>()
+  @Output() deleteFileEvent = new EventEmitter<void>()
   @Output() renameFileEvent = new EventEmitter<MySimpleDialog>()
-   
+  @Output() selectFilesEvent = new EventEmitter<string[]>()
 
-  constructor(private modalService: NgbModal ) {  }
+  constructor(private modalService: NgbModal,
+    private cdRef: ChangeDetectorRef,
+    private renderer: Renderer2   ) {  }
 
-  ngOnInit() { }
-
-  ngAfterViewChecked() { }
+  ngAfterViewInit () { 
+    this.fileContainerRef.createEmbeddedView(this.fileTemplateRef);
+    this.cdRef.detectChanges();
+  }
 
   @HostListener('document:click', ['$event'])
   onDocoumentClick(event: MouseEvent) {
-    this.selectedFiles = [];
+    this.selectedFilesReact = [];
   }
   
+  private idd:string= "";
   @HostListener('dblclick', ['$event'])
   onDoubleClick(event: MouseEvent) {
     const targetElement: HTMLElement = (<HTMLElement>event.target);
     const fileId: string = targetElement.getAttribute("fileId")!;
-    if (fileId) this.openFileEvent.emit(fileId);
+    const isFolder: string =  targetElement.getAttribute("isFolder")!;
+    this.openFileEmit(fileId, isFolder == 'true');
   }
 
   @HostListener('contextmenu', ['$event'])
   onContextMenu(event: MouseEvent) {
     event.preventDefault();
-    this.selectedFiles = [];
+    this.selectedFilesReact = [];
     const targetElem: HTMLElement = (<HTMLElement>event.target);
     const fileId: string = targetElem.getAttribute("fileId")!;
-    const file: MyFile = this.fileListReact.getFileInCurrentById(fileId);
-    if (!targetElem || !fileId || !file) return;
+   
+    if (!targetElem || !fileId) return;
     // ToDo : improve the position on scroll, offPage etc... 
     this.contextMenuRef.nativeElement.style.left = event.pageX + 'px'; 
     this.contextMenuRef.nativeElement.style.top =  event.pageY  + 'px'; 
-    this.selectedFiles.push(file); // Show context menu
+    this.selectFilesEvent.emit([fileId])
+   
   }
+
+
+  openMoveFileMenu(event: MouseEvent) {
+    const files: MyFile[] = this.fileListReact.getCurrentFiles()
+    // Cannot move a single file or move file if not folder present
+    if (files.length < 2  || !files[0].isFolder ) return;
+    const rect = this.contextMenuRef.nativeElement.getBoundingClientRect();
+    const element = this.moveFileMenuRef.nativeElement;
+    element.style.left = rect.right- 2 + 'px'; 
+    element.style.top =  rect.top  + rect.height/3 + 'px'; 
+    element.style.display = 'block';
+  }
+
+  closeMoveFileMenu() {
+    this.moveFileMenuRef.nativeElement.style.display = 'none';
+  }
+
 
   //getFileContainer(): ViewContainerRef {
     //return this.fileContainer;
@@ -82,24 +105,40 @@ export class FileExplorerComponent implements MyFileExplorer, MyDialog {
     //return this.fileTemplate;
   //}
 
-  deleteFileEmit(files: MyFile[]): void {
-    this.deleteFileEvent.emit(files);
+  deleteFileEmit(): void {
+    this.deleteFileEvent.emit();
   }
 
-  moveFileEmit(file: MyFile, moveTo: MyFile): void {
-    this.moveFileEvent.emit({ file: file, moveTo: moveTo });
+  moveFileEmit(folderTargetId: string) {
+    if (this.selectedFilesReact.length == 0) return;
+    this.moveFileEvent.emit(folderTargetId);
   }
 
-  navigateFolderEmit(folder: MyFolder):void {
-    this.navigateFolderEvent.emit(folder);
+  openFileEmit(fileId: string, isFolder:boolean) {
+    if (isFolder) this.openFolderEmit(fileId);
+     else this.openFileEvent.emit(fileId);
+  }
+
+  openFolderEmit(folderId: string) {
+    if (this.isRefreshingFile) return;
+    this.isRefreshingFile = true;
+    this.fileContainerRef.clear();
+    this.openFolderEvent.emit(folderId);
+    setTimeout( () => {
+      this.fileContainerRef.createEmbeddedView(this.fileTemplateRef); 
+      this.isRefreshingFile = false;
+      this.cdRef.detectChanges();
+    }, 0 );
   }
  
   closeDialog() {
     this.dialog.event!.emit(this.dialog);
-    setTimeout(()=> {
+   // setTimeout(()=> {
       if (this.dialog.error != undefined) return;
+
       this.modalRef!.close();
-    }, 10)
+
+   // }, 10)
   }
 
   dismissDialog() {
@@ -117,17 +156,22 @@ export class FileExplorerComponent implements MyFileExplorer, MyDialog {
       this.dialog.event = this.addFolderEvent;
     }
   }
-
+  
   //async 
   openDialog(dialogEvent: MySimpleDialog) {
     //const prom =  new Promise<boolean>(resolve => {
       this.dialog = dialogEvent; // Send infos to dialogReact
       this.dialog.callback = this;
       this.addDialogInfo();
-      this.modalRef = this.modalService.open(this.dialogTemplateRef);
+      this.modalRef = this.modalService.open(
+        this.dialogTemplateRef,
+        {centered:true}
+      );
       this.modalRef.shown.subscribe({
         next: () => { // Autofocus bug
-          document.getElementById('inputFromRenameDialog')!.focus();
+          const childNode = document.querySelector('.inputTextSimpleDialog');
+          const childElem = (childNode) ? childNode as HTMLElement : undefined;
+          if (childElem) childElem.focus();
         }
       });
 /*

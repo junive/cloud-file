@@ -1,92 +1,101 @@
+import { Optional } from "@angular/core";
+import { Observable } from "rxjs";
 import { MyFolder } from "src/app/_model/my-folder";
 import { environment } from "src/environments/environment";
 import { v4 } from "uuid";
 import { MyFile } from "../../_model/my-file";
 
 export class MyFileList {
-  private mapFiles = new Map<string, MyFile[]>();
   private rootFolder: MyFolder = <MyFolder>{
     id:  environment.ROOT_FOLDER_ID,
     name: environment.ROOT_FOLDER_NAME,
-    parentId:"-1"
+    parentId: "-1"
   };
-  private currentFolder: MyFolder =  this.rootFolder;
+  private mapFiles = new Map<string, MyFile[]>();
+  private currentFolderId = this.rootFolder.id!;
 
   constructor() { 
-    this.addFolder(this.currentFolder); // add Root
+    this.createFolder(this.rootFolder); // add Root
   }
 
-  private add(file: MyFile) : MyFile {  
-    if (!file.id) file.id = v4(); // Root already have an id !
-    if (file.isFolder && !this.mapFiles.get(file.id!)) {
-      this.mapFiles.set(file.id!, []);
+  add(file: MyFile) : MyFile {  
+    if (!file.id) file.id = v4(); // Root or move already have an id !
+    if (file.isFolder && !this.get(file.id!)) {
+      this.set(file.id!, []);
     } 
     // Trying to put a file before it's parent
-    if (!this.mapFiles.get(file.parentId!)) { 
-      this.mapFiles.set(file.parentId!, []);
+    if (!this.get(file.parentId)) {
+      this.set(file.parentId!, []);
     }
-   
-    this.mapFiles.get(file.parentId)!.push(file);
+    this.get(file.parentId)!.push(file);
     return file;
   }
 
-  addFile(file:MyFile): MyFile {
+
+  createFile(file:MyFile): MyFile {
     file.isFolder = false;
     return this.add(file);
   }
 
-  addFolder(folder: MyFolder) : MyFolder {
+  createFolder(folder: MyFolder) : MyFolder {
     folder.isFolder = true;
     return this.add(folder);
   }
 
-  addFolderToCurrent(folderName: string): MyFolder {
+  createFolderToCurrent(folderName: string): MyFolder {
     const folder: MyFolder = {
       name: folderName,
-      parentId: this.getCurrentFolder().id!
+      parentId: this.currentFolderId
     }
-    return this.addFolder(folder);
+    return this.createFolder(folder);
   }
 
-  // Should not be used in public : recursive
-  deleteFolderById(pathId: string): boolean {
-    const folder : MyFolder[] = this.mapFiles.get(pathId)!;
-    if (!folder) return false;
-    folder.forEach( file => {
-      if (!file.isFolder) return; // continue
-      this.deleteFolderById(file.id!);
-    });
-    return this.mapFiles.delete(pathId);
+  // Should Use deleteFile() in public
+  deleteFolder(folderId: string) {
+    const files = this.get(folderId)!;
+    for (let i=0; files && i < files.length; i++) {
+      if (!files[i].isFolder) continue;
+      this.deleteFolder(files[i].id!);
+    }
+    this.mapFiles.delete(folderId);
   }
 
-  deleteFolder(folder: MyFolder): boolean {
-    if (!folder || !folder.isFolder) return false; // No Folder
-    return this.deleteFolderById(folder.id!);
+  deleteFile(fileId: string) {
+    const files = this.getCurrentFiles();
+    // Better to use this loop for speed reason
+    for (let i=0; files && i < files.length; i++) {
+      if (fileId != files[i].id) continue; // No Match
+      if (files[i].isFolder) this.deleteFolder(fileId);
+      files.splice(i, 1);
+      break;
+    };
   }
 
-  deleteFileById(id: string): boolean {
-    this.getCurrentFiles().forEach( (file, index) => {
-      if (id != file.id) return; // No Match
-      this.getCurrentFiles().splice(index, 1);
-      return this.deleteFolder(file); // delete from mapFile
-    });
-    return true;
+  deleteFiles(filesId: string[]) {
+    for (let i=0; i < filesId.length; i++) {
+      this.deleteFile(filesId[i]);
+    }
   }
 
-  // Should be the one always use
-  deleteFiles(files: MyFile[]) : boolean {
-    files.forEach(file => {
-      this.deleteFileById(file.id!);
-    });
-    return true;
+  get(folderId: string) {
+    return this.mapFiles.get(folderId);
   }
 
-  getCurrentFiles(): MyFile[] {
-    return this.mapFiles.get(this.getCurrentFolder().id!)!;
+  getCurrentId() {
+    return this.currentFolderId;
   }
 
-  getFileInCurrentById(fileId: string): MyFile {
-    return <MyFile> this.getCurrentFiles().find(
+  getCurrentFiles(filesId? : string[]): MyFile[] {
+    if (filesId != undefined) {
+      return this.getCurrentFiles().filter( (file) => {
+        return filesId.some( fileId => file.id === fileId );
+      });
+    }
+    return this.get(this.getCurrentId())!;
+  }
+
+  getCurrentFile(fileId: string): MyFile {
+    return this.getCurrentFiles().find(
       file => file.id == fileId
     )!;
   }
@@ -95,10 +104,6 @@ export class MyFileList {
       return this.rootFolder;
   }
 
-  getCurrentFolder(): MyFolder {
-    return this.currentFolder;
-  }
-  
   getMapFiles(): Map<string, MyFile[]>{
     return this.mapFiles;
   }
@@ -112,8 +117,27 @@ export class MyFileList {
     return hasSameName;
   }
 
-  setCurrentFolder(folder: MyFolder): void {
-    this.currentFolder = folder;
+  moveFiles(folderTargetId: string, filesToMove: MyFile[]) {
+    const filesRemove: MyFile[] = this.get(filesToMove[0].parentId)!;
+    const filesTarget: MyFile[] = this.get(folderTargetId)!
+    filesRemove.forEach( (fileRemove, index) => {
+      filesToMove.forEach( (fileToMove) => {
+        if (fileRemove.id != fileToMove.id) return; // No Match
+        filesRemove.splice(index, 1);
+        fileToMove.parentId = folderTargetId;
+        filesTarget.push(fileToMove);
+      })
+    });
+  }
+
+
+  set(folderId: string, files:MyFile[]) : void {
+    this.mapFiles.set(folderId, files);
+  }
+
+  setCurrentId(folderId: string): void {
+    this.currentFolderId = folderId;
+    this.sortbyNameASC();
   }
 
   private sortByFolderASC(): void {
@@ -127,7 +151,6 @@ export class MyFileList {
     this.getCurrentFiles().sort((a,b) => {
       if (a.isFolder != b.isFolder) return 0;
       return a.name.localeCompare(b.name);
-      
     });
   }
 
@@ -138,30 +161,7 @@ export class MyFileList {
   }
 
 
-  updateFilesByParentId(folderId: string):void {
-   
-  }
 
-  getFilesByParentId(parentId: string): void {
-    const result: MyFile[] = [];
-   /* this.files.forEach(element => {
-      if (element.parent === folderId) {
-        result.push(this.clone(element));
-      }
-    });
-   // if (!this.querySubject) {
-    //  this.querySubject = ;
-    //} else {
-      this.querySubject.next(result);
-   // }
-    
-    this.querySubject.subscribe({
-      next:(result:FileList) => {
-        this.currentList = result;
-      }
-    });
-    */
-  }
 /*
   getFileById(id: string) {
      return this.files.get(id)!;

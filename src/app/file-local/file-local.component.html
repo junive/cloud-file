@@ -1,16 +1,22 @@
+
+
 <div style=" height: 100%; box-sizing: border-box;">
     <mat-card style="height: 100%; box-sizing: border-box; padding:0">
-      <file-explorer
+      <my-file-explorer #fileLocal
+
         [fileListReact]="fileList"
         [navFoldersReact]="navFolders"
+        [selectedFilesReact]="selectedFiles"
         (addFolderEvent)="addFolder($event)"
-        (deleteFileEvent)="deleteFile($event)"
+        (deleteFileEvent)="deleteFiles()"
         (renameFileEvent)="renameFile($event)"
-        (navigateFolderEvent)="openFolder($event)"
-        (openFileEvent)="openFileById($event)"
+        (openFileEvent)="openFile($event)"
+        (openFolderEvent)="openFolder($event)"
         (moveFileEvent)="moveFile($event)" 
+        (selectFilesEvent)="selectFiles($event)" 
+        
         >
-      </file-explorer>
+      </my-file-explorer>
     </mat-card>
   </div>
 

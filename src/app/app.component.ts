@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
-import { FileLocalComponent } from './file-local/file-local.component';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +9,9 @@ import { FileLocalComponent } from './file-local/file-local.component';
 export class AppComponent {
  
 
-  constructor() {}
+  constructor() {
+
+  }
 
   ngOnInit() {
    

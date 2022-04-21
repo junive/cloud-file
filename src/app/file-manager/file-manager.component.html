@@ -1,0 +1,12 @@
+<my-file-explorer #fileManager
+    [fileListReact]="fileList"
+    [navFoldersReact]="navFolders"
+    [selectedFilesReact]="selectedFiles"
+    (addFolderEvent)="addFolder($event)"
+    (deleteFileEvent)="deleteFiles()"
+    (renameFileEvent)="renameFile($event)"
+    (openFileEvent)="openFile($event)"
+    (openFolderEvent)="openFolder($event)"
+    (moveFileEvent)="moveFile($event)" 
+    (selectFilesEvent)="selectFiles($event)"
+> </my-file-explorer>
