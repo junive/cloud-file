@@ -1,37 +1,37 @@
-import { Component, Input, Output, EventEmitter, ViewChild, HostListener, ElementRef, TemplateRef, Renderer2, ViewContainerRef, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core'
+import { Component, Input, Output, EventEmitter, ViewChild, HostListener, ElementRef,  ChangeDetectionStrategy } from '@angular/core'
 import { MyFile } from '../_model/my-file';
-import { MyFileList } from './helper/my-file-list';
 import { MyFolder } from '../_model/my-folder';
 import { MySimpleDialog } from '../_model/my-simple-dialog';
-import { DialogEnum } from '../dialog/helper/dialog-enum';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DialogEnum } from '../_helper/dialog-enum';
 import { MyDialog } from '../_model/my-dialog';
 import { MySvg } from 'src/assets/svg';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { DialogManagerService } from '../_service/dialog.service';
 
 @Component({
   selector: "my-file-explorer",
   templateUrl: './file-explorer.component.html',
   styleUrls: ['./file-explorer.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class FileExplorerComponent implements MyDialog {
 
-  @ViewChild('fileContainerRef', { read: ViewContainerRef  }) fileContainerRef!: ViewContainerRef;
-  @ViewChild('fileTemplateRef', { read: TemplateRef }) fileTemplateRef!: TemplateRef<any>;
+  //@ViewChild('fileContainerRef', { read: ViewContainerRef  }) fileContainerRef!: ViewContainerRef;
+  //@ViewChild('fileTemplateRef', { read: TemplateRef }) fileTemplateRef!: TemplateRef<any>;
 
   @ViewChild("contextMenuRef") contextMenuRef!: ElementRef;
   @ViewChild("moveFileMenuRef") moveFileMenuRef!: ElementRef;
-  @ViewChild("dialogTemplate") dialogTemplateRef!: TemplateRef<any>;
+  
 
-  @Input() fileListReact: MyFileList = new MyFileList();
+  @Input() filesReact!: Observable<MyFile[]>;
   @Input() navFoldersReact: MyFolder[] =[];
   @Input() selectedFilesReact: MyFile[] = [];
 
   public dialog!: MySimpleDialog;
   public dialogEnum = DialogEnum;
-  public modalRef?: NgbModalRef;
-  public isRefreshingFile = false;
+
+  //public isRefreshingFile = false;
   public svg = MySvg;
   
   @Output() addFolderEvent = new EventEmitter<MySimpleDialog>()
@@ -42,13 +42,15 @@ export class FileExplorerComponent implements MyDialog {
   @Output() renameFileEvent = new EventEmitter<MySimpleDialog>()
   @Output() selectFilesEvent = new EventEmitter<string[]>()
 
-  constructor(private modalService: NgbModal,
-    private cdRef: ChangeDetectorRef,
-    private renderer: Renderer2   ) {  }
+  constructor( 
+    private dial: DialogManagerService,
+   //private cdRef: ChangeDetectorRef,
+   //private renderer: Renderer2 
+      ) {  }
 
   ngAfterViewInit () { 
-    this.fileContainerRef.createEmbeddedView(this.fileTemplateRef);
-    this.cdRef.detectChanges();
+    //this.fileContainerRef.createEmbeddedView(this.fileTemplateRef);
+    //this.cdRef.detectChanges();
   }
 
   @HostListener('document:click', ['$event'])
@@ -65,8 +67,10 @@ export class FileExplorerComponent implements MyDialog {
     this.openFileEmit(fileId, isFolder == 'true');
   }
 
+
   @HostListener('contextmenu', ['$event'])
   onContextMenu(event: MouseEvent) {
+   
     event.preventDefault();
     this.selectedFilesReact = [];
     const targetElem: HTMLElement = (<HTMLElement>event.target);
@@ -77,14 +81,13 @@ export class FileExplorerComponent implements MyDialog {
     this.contextMenuRef.nativeElement.style.left = event.pageX + 'px'; 
     this.contextMenuRef.nativeElement.style.top =  event.pageY  + 'px'; 
     this.selectFilesEvent.emit([fileId])
-   
   }
 
 
   openMoveFileMenu(event: MouseEvent) {
-    const files: MyFile[] = this.fileListReact.getCurrentFiles()
+   // const files: MyFile[] = this.fileListReact.getCurrentFiles()
     // Cannot move a single file or move file if not folder present
-    if (files.length < 2  || !files[0].isFolder ) return;
+    //if (files.length < 2  || !files[0].isFolder ) return;
     const rect = this.contextMenuRef.nativeElement.getBoundingClientRect();
     const element = this.moveFileMenuRef.nativeElement;
     element.style.left = rect.right- 2 + 'px'; 
@@ -95,7 +98,6 @@ export class FileExplorerComponent implements MyDialog {
   closeMoveFileMenu() {
     this.moveFileMenuRef.nativeElement.style.display = 'none';
   }
-
 
   //getFileContainer(): ViewContainerRef {
     //return this.fileContainer;
@@ -120,15 +122,17 @@ export class FileExplorerComponent implements MyDialog {
   }
 
   openFolderEmit(folderId: string) {
-    if (this.isRefreshingFile) return;
-    this.isRefreshingFile = true;
-    this.fileContainerRef.clear();
+    //if (this.isRefreshingFile) return;
+    //this.isRefreshingFile = true;
+    //this.fileContainerRef.clear();
+    
     this.openFolderEvent.emit(folderId);
-    setTimeout( () => {
-      this.fileContainerRef.createEmbeddedView(this.fileTemplateRef); 
-      this.isRefreshingFile = false;
-      this.cdRef.detectChanges();
-    }, 0 );
+    
+   // setTimeout( () => {
+     // this.fileContainerRef.createEmbeddedView(this.fileTemplateRef); 
+     // this.isRefreshingFile = false;
+     // this.cdRef.detectChanges();
+    //}, 0 );
   }
  
   closeDialog() {
@@ -136,13 +140,13 @@ export class FileExplorerComponent implements MyDialog {
    // setTimeout(()=> {
       if (this.dialog.error != undefined) return;
 
-      this.modalRef!.close();
+      //this.modalRef!.close();
 
    // }, 10)
   }
 
   dismissDialog() {
-    this.modalRef!.dismiss();
+//    this.modalRef!.dismiss();
   }
 
   addDialogInfo(): void {
@@ -153,6 +157,7 @@ export class FileExplorerComponent implements MyDialog {
     }
     if (this.dialog.enum == DialogEnum.NEW_FOLDER) {
       this.dialog.title = "Add new Folder";
+     // this.addFolderEvent.subscribe((e) => console.log(e));
       this.dialog.event = this.addFolderEvent;
     }
   }
@@ -163,7 +168,14 @@ export class FileExplorerComponent implements MyDialog {
       this.dialog = dialogEvent; // Send infos to dialogReact
       this.dialog.callback = this;
       this.addDialogInfo();
-      this.modalRef = this.modalService.open(
+
+     // console.log(this.dial.getSimpleDialog());
+
+      this.dial.openSimpleDialog();
+
+
+      //this.simpleDialog.open(this.dialog);
+ /*     this.modalRef = this.modalService.open(
         this.dialogTemplateRef,
         {centered:true}
       );
@@ -174,7 +186,7 @@ export class FileExplorerComponent implements MyDialog {
           if (childElem) childElem.focus();
         }
       });
-/*
+
       this.modalRef.closed.subscribe({
         next: () => {
           this.dialogRequest.event?.emit(this.dialogRequest);

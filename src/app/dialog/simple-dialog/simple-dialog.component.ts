@@ -1,23 +1,34 @@
-import { Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Injectable, Input, TemplateRef, ViewChild } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AppComponent } from 'src/app/app.component';
 import { MySimpleDialog } from 'src/app/_model/my-simple-dialog';
-import { DialogEnum, DialogErrorEnum } from '../helper/dialog-enum';
+import { DialogManagerService } from 'src/app/_service/dialog.service';
+import { DialogEnum, DialogErrorEnum } from '../../_helper/dialog-enum';
 
 @Component({
-  selector: "rename-modal",
+  selector: "my-simple-dialog",
   templateUrl: './simple-dialog.component.html',
-  styleUrls: ['./simple-dialog.component.css'],
+  styleUrls: ['./simple-dialog.component.css']
 })
 
 export class SimpleDialogComponent  {
+  dialogReact: MySimpleDialog = {};
+  dialogEnum = DialogEnum;
+  dialogErrorEnum = DialogErrorEnum;
   
-  @Input() dialogReact!: MySimpleDialog;
-  public dialogEnum = DialogEnum;
-  public dialogErrorEnum = DialogErrorEnum;
-  public username:string ="";
+  modalRef?: NgbModalRef;
 
-  constructor() { }
+  constructor(
+    private dialogService: DialogManagerService,
+    private template: ElementRef
+  ) { }
 
   ngAfterViewInit() { }
+
+  getTemplate() {
+    //This will return '<p> Text </p>' as a string
+    return this.template;
+  }
 
   @HostListener('document:keydown.escape', ['$event']) 
   onEscapeHandler(event: KeyboardEvent) {
@@ -29,14 +40,38 @@ export class SimpleDialogComponent  {
     return this.close();
   }
 
-  async close(): Promise<void> {
+  open(di: MySimpleDialog) {
+    this.dialogReact = di;
+   /* this.modalRef = this.modalService.open(
+     this.app.getSimpleDialog(),
+      {centered:true}
+    );
+    this.modalRef.shown.subscribe({
+      next: () => { // Autofocus bug
+        const childNode = document.querySelector('.inputTextSimpleDialog');
+        const childElem = (childNode) ? childNode as HTMLElement : undefined;
+        if (childElem) childElem.focus();
+      }
+    });
+    */
+  // console.log(this);
+  }
+
+  close() {
+    this.dialogService.close();
    // if (this.dialogReact.error) return;
-    this.dialogReact.callback!.closeDialog();
+  // if (this.dialog.error != undefined) return;
+
+    //this.modalRef!.close();
+    //this.dialogReact.callback!.closeDialog();
     //this.dialogReact.ref!.close(this.dialogReact)
   }
 
-  async dismiss(): Promise<void> {
-    this.dialogReact.callback!.dismissDialog();
+  dismiss() {
+    this.dialogService.dismiss();
+   // console.log(this.modalRef)
+    //this.modalRef!.dismiss();
+    //this.dialogReact.callback!.dismissDialog();
     //this.dialogReact.ref!.dismiss(this.dialogReact)
   }
 }

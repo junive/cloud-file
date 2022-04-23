@@ -1,8 +1,7 @@
 # Install package 
 
-material : `npm install --save @angular/material @angular/cdk`
-flexbox : `npm install --save @angular/flex-layout`
 random id : `npm install --save uuid` (or types/uuid)?
+bootstrap :
 
 
 # JuniveCloudFile

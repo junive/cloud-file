@@ -1,9 +1,9 @@
 import { Optional } from "@angular/core";
-import { Observable } from "rxjs";
+import { BehaviorSubject, Observable, shareReplay } from "rxjs";
 import { MyFolder } from "src/app/_model/my-folder";
 import { environment } from "src/environments/environment";
 import { v4 } from "uuid";
-import { MyFile } from "../../_model/my-file";
+import { MyFile } from "../_model/my-file";
 
 export class MyFileList {
   private rootFolder: MyFolder = <MyFolder>{
@@ -11,11 +11,13 @@ export class MyFileList {
     name: environment.ROOT_FOLDER_NAME,
     parentId: "-1"
   };
-  private mapFiles = new Map<string, MyFile[]>();
+  private mapFiles: Map<string, MyFile[]> = new Map<string, MyFile[]>();
   private currentFolderId = this.rootFolder.id!;
+  private filesSubject!: BehaviorSubject<MyFile[]>;
+  private filesObserver!: Observable<MyFile[]>;
 
   constructor() { 
-    this.createFolder(this.rootFolder); // add Root
+    this.clear();
   }
 
   add(file: MyFile) : MyFile {  
@@ -31,6 +33,10 @@ export class MyFileList {
     return file;
   }
 
+  clear() {
+    this.mapFiles = new Map<string, MyFile[]>()
+    this.createFolder(this.rootFolder);
+  }
 
   createFile(file:MyFile): MyFile {
     file.isFolder = false;
@@ -66,7 +72,7 @@ export class MyFileList {
     for (let i=0; files && i < files.length; i++) {
       if (fileId != files[i].id) continue; // No Match
       if (files[i].isFolder) this.deleteFolder(fileId);
-      files.splice(i, 1);
+      files.splice(i, 1);  
       break;
     };
   }
@@ -93,6 +99,12 @@ export class MyFileList {
     }
     return this.get(this.getCurrentId())!;
   }
+
+
+  getFilesObserver(): Observable<MyFile[]> {
+    return this.filesObserver;
+  }
+
 
   getCurrentFile(fileId: string): MyFile {
     return this.getCurrentFiles().find(
@@ -137,7 +149,10 @@ export class MyFileList {
 
   setCurrentId(folderId: string): void {
     this.currentFolderId = folderId;
-    this.sortbyNameASC();
+  }
+
+  setFilesObserver(obs: Observable<MyFile[]>) {
+    this.filesObserver = obs//.pipe(shareReplay());
   }
 
   private sortByFolderASC(): void {
@@ -154,10 +169,14 @@ export class MyFileList {
     });
   }
 
-  update(id: string, update: Partial<MyFile>) {
-    /*let element = this.files.get(id);
-    element = Object.assign(element, update);
-    if (element.id) this.files.set(element.id, element);*/
+  updateFilesObserver(filesId? : string[]) {
+    const result: MyFile[] = [...this.getCurrentFiles(filesId)]; 
+    if (!this.filesSubject) {
+      this.filesSubject = new BehaviorSubject( result );
+    } else {
+      this.filesSubject.next(result);
+    }
+    this.setFilesObserver(this.filesSubject)//.pipe(shareReplay())
   }
 
 

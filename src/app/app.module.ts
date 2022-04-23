@@ -1,24 +1,30 @@
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
-import { FileLocalComponent } from './file-local/file-local.component';
-import { FileLocalModule } from './_module/file-local.module';
-import { FilePhotoModule } from './_module/file-photo.module';
-import { FileManagerComponent } from './file-manager/file-manager.component';
+import { FileLocalService } from './_service/file-local.service';
+import { FileGPhotoService } from './_service/file-gphoto.service';
+import { BrowserModule } from '@angular/platform-browser';
 import { FileManagerModule } from './_module/file-manager.module';
+import { DialogManagerModule } from './_module/dialog.module';
+import { DialogManagerService } from './_service/dialog.service';
+import { SimpleDialogComponent } from './dialog/simple-dialog/simple-dialog.component';
 
 @NgModule({
   declarations: [
-    AppComponent 
+    AppComponent,
   ],
   imports: [
-    FileManagerModule,
-    FileLocalModule,
-    FilePhotoModule
+    BrowserModule,
+    FileManagerModule
   ],
   providers: [
-    
+    FileLocalService,
+    FileGPhotoService,
+    DialogManagerService,
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  
+
+
 })
 export class AppModule { }
+ 

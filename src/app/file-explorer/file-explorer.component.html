@@ -1,7 +1,7 @@
 
 
-<mat-toolbar>
-  <div 
+<div>
+  <div style="display:inline-flex"
     class="pointer" 
     *ngFor="let folder of navFoldersReact"
     (click)="openFileEmit(folder.id!, folder.isFolder!)" 
@@ -9,84 +9,91 @@
     {{ folder.name }} // 
   </div>
 
-  <span class="spacer"></span>
-   <mat-icon 
+   <div
     class="pointer" 
     (click)="openDialog({
       enum: dialogEnum.NEW_FOLDER
     })">
-    create_new_folder
-  </mat-icon>
-</mat-toolbar>
-  
+   CREATE
+  </div>
+</div>
 
-<ng-container #fileContainerRef> </ng-container>
+<!-- <ng-container #fileContainerRef> </ng-container> -->
 
-<ng-template #fileTemplateRef >
-  <div>
-    <div *ngFor="let file of fileListReact.getCurrentFiles()" >   
-      <svg width="5%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+
+<div *ngIf="filesReact | async as filesObs">
+<!--  <ng-template #fileTemplateRef > -->
+  <cdk-virtual-scroll-viewport itemSize="50"  style="height: 400px">
+    <div *cdkVirtualFor="let file of filesObs" >   
+      <svg [attr.fileId]="file.id" 
+        width="5%" 
+        xmlns="http://www.w3.org/2000/svg" 
+        viewBox="0 0 512 512"
+      > 
         <path [attr.d]="svg.folder.d"/>
       </svg>
-      <span [attr.fileId]="file.id"  [attr.isfolder]="file.isFolder">
-        {{file.name}}
-      </span>
+      <span [attr.fileId]="file.id"  
+        [attr.isfolder]="file.isFolder"
+        [innerHTML] = "file.name"
+      ></span>
     </div>
-  </div>
-</ng-template>
+  </cdk-virtual-scroll-viewport>
+<!-- </ng-template> -->
 
 
-<ul #contextMenuRef
-  [class.show]="selectedFilesReact.length > 0"
-  [className]="'dropdown-menu'">
-  <li>
-    <a role="button"
-      [innerHTML] = "'Rename'"
-      [class.disabled]="selectedFilesReact.length > 1"
-      [className]="'dropdown-item'"
-      (click)="openDialog({
-        file: selectedFilesReact[0], 
-        enum:dialogEnum.RENAME_FILE
-      })"
-    > </a>
-  </li>
-  <li>
-    <a role="button"
-      [innerHTML] = "'Delete'"
-      [className] = "'dropdown-item'"
-      (click)="deleteFileEmit()"
-    ></a>
-  </li>
-<!--    <li>
-    <a role="button"
-      [innerHTML] = "'Move To >'"
-      [className] = "'dropdown-item'"
-      (mouseover)="openMoveFileMenu($event)"
-      (mouseout)="closeMoveFileMenu()"
-    ></a>
-  </li>  -->
-  <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
-</ul> 
- 
+  <ul #contextMenuRef
+    [class.show]="selectedFilesReact.length > 0"
+    [className]="'dropdown-menu'">
+    <li>
+      <a role="button"
+        [innerHTML] = "'Rename'"
+        [class.disabled]="selectedFilesReact.length > 1"
+        [className]="'dropdown-item'"
+        (click)="openDialog({
+          file: selectedFilesReact[0], 
+          enum:dialogEnum.RENAME_FILE
+        })"
+      > </a>
+    </li>
+    <li>
+      <a role="button"
+        [innerHTML] = "'Delete'"
+        [className] = "'dropdown-item'"
+        (click)="deleteFileEmit()"
+      ></a>
+    </li>
+      <li>
+      <a role="button"
+        [innerHTML] = "'Move To >'"
+        [className] = "'dropdown-item'"
+        (mouseover)="openMoveFileMenu($event)"
+        (mouseout)="closeMoveFileMenu()"
+      ></a>
+    </li>  
+    <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
+  </ul> 
 
- <!-- <ul #moveFileMenuRef
-  [class.show]="false"
-  [className]="'dropdown-menu'"
-  (mouseout)="closeMoveFileMenu()"
-  (mouseover)="openMoveFileMenu($event)"
-  *ngIf="selectedFilesReact.length == 1"
->
-  <li *ngFor="let file of fileListReact.getCurrentFiles()" >
-    <a *ngIf="file.isFolder && selectedFilesReact[0].id !== file.id" 
-      role="button"
-      [innerHTML] = "file.name"
-      [className]="'dropdown-item'"
-      (click)="moveFileEmit(file.id!)"
-    ></a>
-  </li>
-</ul>  -->
 
-<ng-template #dialogTemplate>
-  <rename-modal  [dialogReact]="dialog" > </rename-modal>
-</ng-template>
+  <ul #moveFileMenuRef
+    [class.show]="false"
+    [className]="'dropdown-menu'"
+    (mouseout)="closeMoveFileMenu()"
+    (mouseover)="openMoveFileMenu($event)"
+    *ngIf="selectedFilesReact.length == 1"
+  >
+    <cdk-virtual-scroll-viewport itemSize="10"  style="height: 500px">
+      <li *cdkVirtualFor="let file of filesObs" >
+        <a *ngIf="file.isFolder && selectedFilesReact[0].id !== file.id" 
+          role="button"
+          [innerHTML] = "file.name"
+          [className]="'dropdown-item'"
+          (click)="moveFileEmit(file.id!)"
+        ></a>
+      </li>
+    </cdk-virtual-scroll-viewport>
+  </ul>  
+</div>
+
+
+
 

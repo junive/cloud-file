@@ -1,8 +1,13 @@
 Hello World
-<file-local></file-local>
-<file-photo></file-photo>
-<my-file-manager #fileLocal>
+<my-file-manager #fileLocal
+    [service]="services.local"
+    [initFiles]="true"
+> 
 </my-file-manager>
 
-<my-file-manager #fileGooglePhotos>
+<my-file-manager #fileGPhotos
+    [service]="services.gphoto"
+    [initFiles]="true"
+    [hide] = "{navigation:true}"
+>
 </my-file-manager>

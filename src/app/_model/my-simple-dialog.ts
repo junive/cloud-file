@@ -1,5 +1,5 @@
 import { EventEmitter } from '@angular/core';
-import { DialogEnum, DialogErrorEnum } from '../dialog/helper/dialog-enum';
+import { DialogEnum, DialogErrorEnum } from '../_helper/dialog-enum';
 import { MyDialog } from './my-dialog';
 import { MyFile } from './my-file';
 
