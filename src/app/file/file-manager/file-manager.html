@@ -1,0 +1,9 @@
+<my-file-explorer #fileExplorer
+    [filesReact]="(fileList.getFilesObserver() | async)!"
+    [navFoldersReact]="navFolders"
+    (addFolderEvent)="addFolder($event)"  
+    (deleteFileEvent)="deleteFiles($event)"
+    (moveFileEvent)="moveFiles($event)" 
+    (openFileEvent)="openFile($event)"
+    (renameFileEvent)="renameFile($event)"
+> </my-file-explorer> 

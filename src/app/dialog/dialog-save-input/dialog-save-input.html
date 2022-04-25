@@ -1,0 +1,22 @@
+
+<div class="modal-header">
+  <h5 class="modal-title">{{dialog!.title}}</h5>
+  <button type="button" class="btn-close" (click)="dismiss()" aria-label="Close"></button>
+</div>
+<div  class="modal-body">
+   <div>
+    <input type="text"
+        ngbAutofocus
+        class="form-control" 
+        [(ngModel)] = "dialog!.name"
+        autofocus/>
+  </div>
+  <div class="alert alert-warning" role="alert" *ngIf="dialogError != undefined">
+    <span>{{dialogError.message}} </span>
+  </div>
+
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary"  (click)="dismiss()">Close</button>
+  <button type="button" class="btn btn-primary" (click)="close()">Save changes</button>
+</div>

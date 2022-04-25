@@ -1,6 +1,6 @@
 import { Optional } from "@angular/core";
 import { BehaviorSubject, Observable, shareReplay } from "rxjs";
-import { MyFolder } from "src/app/_model/my-folder";
+import { MyFolder } from "src/app/file/_model/my-folder";
 import { environment } from "src/environments/environment";
 import { v4 } from "uuid";
 import { MyFile } from "../_model/my-file";
@@ -100,7 +100,6 @@ export class MyFileList {
     return this.get(this.getCurrentId())!;
   }
 
-
   getFilesObserver(): Observable<MyFile[]> {
     return this.filesObserver;
   }
@@ -129,15 +128,16 @@ export class MyFileList {
     return hasSameName;
   }
 
-  moveFiles(folderTargetId: string, filesToMove: MyFile[]) {
-    const filesRemove: MyFile[] = this.get(filesToMove[0].parentId)!;
-    const filesTarget: MyFile[] = this.get(folderTargetId)!
-    filesRemove.forEach( (fileRemove, index) => {
-      filesToMove.forEach( (fileToMove) => {
-        if (fileRemove.id != fileToMove.id) return; // No Match
-        filesRemove.splice(index, 1);
-        fileToMove.parentId = folderTargetId;
-        filesTarget.push(fileToMove);
+  moveFiles(filesId: string[], targetFolderId: string) {
+    //const filesToRemove: MyFile[] = this.getCurrentFiles(filesId);
+    const filesTarget: MyFile[] = this.get(targetFolderId)!;
+    const files = this.getCurrentFiles();
+    files.forEach( (file, index) => {
+      filesId.forEach( (id) => {
+        if (file.id != id) return; // No Match
+        files.splice(index, 1);
+        file.parentId = targetFolderId;
+        filesTarget.push(file);
       })
     });
   }
@@ -170,6 +170,7 @@ export class MyFileList {
   }
 
   updateFilesObserver(filesId? : string[]) {
+    // Have to create a new array in order to push it on view
     const result: MyFile[] = [...this.getCurrentFiles(filesId)]; 
     if (!this.filesSubject) {
       this.filesSubject = new BehaviorSubject( result );

@@ -4,16 +4,14 @@
   <div style="display:inline-flex"
     class="pointer" 
     *ngFor="let folder of navFoldersReact"
-    (click)="openFileEmit(folder.id!, folder.isFolder!)" 
+    (click)="openFileEmit(folder.id!)" 
   >
     {{ folder.name }} // 
   </div>
 
    <div
     class="pointer" 
-    (click)="openDialog({
-      enum: dialogEnum.NEW_FOLDER
-    })">
+    (click)="dialogAddFolder()">
    CREATE
   </div>
 </div>
@@ -21,78 +19,78 @@
 <!-- <ng-container #fileContainerRef> </ng-container> -->
 
 
-<div *ngIf="filesReact | async as filesObs">
+<!-- <div *ngIf="filesReact as filesObs"> -->
 <!--  <ng-template #fileTemplateRef > -->
   <cdk-virtual-scroll-viewport itemSize="50"  style="height: 400px">
-    <div *cdkVirtualFor="let file of filesObs" >   
-      <svg [attr.fileId]="file.id" 
+    <div *cdkVirtualFor="let file of filesReact" 
+      (dblclick)="openFileEmit(file.id)"
+      (contextmenu)="openMenuContext($event, file.id)"
+    >   
+      <svg
         width="5%" 
         xmlns="http://www.w3.org/2000/svg" 
         viewBox="0 0 512 512"
       > 
-        <path [attr.d]="svg.folder.d"/>
+        <path [attr.d]="mysvg.folder.d"/>
       </svg>
-      <span [attr.fileId]="file.id"  
-        [attr.isfolder]="file.isFolder"
-        [innerHTML] = "file.name"
-      ></span>
+      <span  >{{file.name}} </span>
     </div>
   </cdk-virtual-scroll-viewport>
 <!-- </ng-template> -->
 
 
   <ul #contextMenuRef
-    [class.show]="selectedFilesReact.length > 0"
+    [class.show]="!menu.context.hide"
+    [style.top]="menu.context.top"
+    [style.left]="menu.context.left"
     [className]="'dropdown-menu'">
     <li>
       <a role="button"
-        [innerHTML] = "'Rename'"
-        [class.disabled]="selectedFilesReact.length > 1"
+        [innerHTML]="'Rename'"
+        [class.disabled]="selectedIds.length > 1"
         [className]="'dropdown-item'"
-        (click)="openDialog({
-          file: selectedFilesReact[0], 
-          enum:dialogEnum.RENAME_FILE
-        })"
+        (click)="dialogRenameFile()"
       > </a>
     </li>
     <li>
       <a role="button"
-        [innerHTML] = "'Delete'"
-        [className] = "'dropdown-item'"
+        [innerHTML]="'Delete'"
+        [className]="'dropdown-item'"
         (click)="deleteFileEmit()"
       ></a>
     </li>
-      <li>
+      <li #buttonMoveFiles>
       <a role="button"
         [innerHTML] = "'Move To >'"
         [className] = "'dropdown-item'"
-        (mouseover)="openMoveFileMenu($event)"
-        (mouseout)="closeMoveFileMenu()"
+        (mouseover)="openMenuMove($event, buttonMoveFiles)"
+        (mouseout)="menu.move.hide = true"
       ></a>
     </li>  
     <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
   </ul> 
 
 
-  <ul #moveFileMenuRef
-    [class.show]="false"
+  <ul #menuMoveFileRef
+    [class.show]="!menu.move.hide"
+    [style.top]="menu.move.top"
+    [style.left]="menu.move.left"
     [className]="'dropdown-menu'"
-    (mouseout)="closeMoveFileMenu()"
-    (mouseover)="openMoveFileMenu($event)"
-    *ngIf="selectedFilesReact.length == 1"
+    (mouseout)="menu.move.hide = true"
+    (mouseover)="menu.move.hide = false"
   >
     <cdk-virtual-scroll-viewport itemSize="10"  style="height: 500px">
-      <li *cdkVirtualFor="let file of filesObs" >
-        <a *ngIf="file.isFolder && selectedFilesReact[0].id !== file.id" 
+      <li *cdkVirtualFor="let file of filesReact" >
+        <a *ngIf="file.isFolder && selectedIds[0] !== file.id" 
           role="button"
-          [innerHTML] = "file.name"
+          [innerHTML]="file.name"
           [className]="'dropdown-item'"
-          (click)="moveFileEmit(file.id!)"
+          (click)="moveFilesEmit(file.id!)"
         ></a>
       </li>
     </cdk-virtual-scroll-viewport>
   </ul>  
-</div>
+<!-- </div> -->
 
 
 

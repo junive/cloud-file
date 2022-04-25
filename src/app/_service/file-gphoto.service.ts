@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 
-import { MyFile } from '../_model/my-file'
+import { MyFile } from '../file/_model/my-file'
 import { BehaviorSubject } from 'rxjs'
 import { Observable } from 'rxjs'
-import { MyFileManagerService } from '../_model/my-file-manager';
-import { MyFileList } from '../_helper/my-file-list';
+import { MyFileService } from '../file/_model/my-file-service';
+import { MyFileList } from '../file/_helper/file-list.helper';
 import { environment } from 'src/environments/environment';
 
 
 
 
 @Injectable()
-export class FileGPhotoService implements MyFileManagerService{
+export class FileGPhotoService implements MyFileService{
   constructor() {}
   getRootFiles(fileList: MyFileList): Observable<MyFile[]> {
     return new Observable(obs => {

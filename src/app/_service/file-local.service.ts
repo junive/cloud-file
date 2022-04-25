@@ -1,20 +1,16 @@
 import { Injectable } from '@angular/core';
-import { MyFile } from '../_model/my-file'
-import { BehaviorSubject } from 'rxjs'
+import { MyFile } from '../file/_model/my-file'
 import { Observable } from 'rxjs'
-import { MyFileManagerService } from '../_model/my-file-manager';
+import { MyFileService } from '../file/_model/my-file-service';
 import { environment } from 'src/environments/environment';
-import { MyFileList } from '../_helper/my-file-list';
-import { MyFolder } from '../_model/my-folder';
+import { MyFileList } from '../file/_helper/file-list.helper';
 
 @Injectable()
-export class FileLocalService implements MyFileManagerService {
+export class FileLocalService implements MyFileService {
 
   constructor() {}
 
-  addFiles(): void {
-    
-  }
+  addFiles(): void { }
 
   getRootFiles(fileList: MyFileList): Observable<MyFile[]> {
     return new Observable(obs => {
@@ -28,7 +24,6 @@ export class FileLocalService implements MyFileManagerService {
       fileList.createFolder({name: 'Folder C', parentId: environment.ROOT_FOLDER_ID });
       fileList.createFile({ name: 'File A', parentId: environment.ROOT_FOLDER_ID }); 
       fileList.createFile({ name: 'File B', parentId: environment.ROOT_FOLDER_ID }); 
-
 
       for (let i =0; i<10000 ; i++) {
         fileList.createFolder({ name: 'Folder 0', parentId: environment.ROOT_FOLDER_ID });

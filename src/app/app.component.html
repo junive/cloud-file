@@ -1,13 +1,19 @@
 Hello World
 <my-file-manager #fileLocal
     [service]="services.local"
-    [initFiles]="true"
+    [config] = "{
+        initFiles: true
+    }"
 > 
 </my-file-manager>
 
 <my-file-manager #fileGPhotos
     [service]="services.gphoto"
-    [initFiles]="true"
-    [hide] = "{navigation:true}"
+    [config] = "{
+        initFiles: true,
+        hide: {
+            navPath: true
+        }
+    }"
 >
 </my-file-manager>

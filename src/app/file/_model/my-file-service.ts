@@ -1,8 +1,8 @@
 import { Observable } from "rxjs";
-import { MyFileList } from "../_helper/my-file-list";
+import { MyFileList } from "../_helper/file-list.helper";
 import { MyFile } from "./my-file";
 
-export interface MyFileManagerService {
+export interface MyFileService {
     getRootFiles(fileList: MyFileList):Observable<MyFile[]>;
     addFiles():void;
 }

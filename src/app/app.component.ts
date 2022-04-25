@@ -1,7 +1,7 @@
 import { Component, Injector, TemplateRef, ViewChild } from '@angular/core';
 import { FileLocalService } from './_service/file-local.service';
 import { FileGPhotoService } from './_service/file-gphoto.service';
-import { FileManagerComponent } from './file-manager/file-manager.component';
+import { FileManagerComponent } from './file/file-manager/file-manager.component';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +10,8 @@ import { FileManagerComponent } from './file-manager/file-manager.component';
 })
 
 export class AppComponent {
-  @ViewChild('fileLocal') local!: FileManagerComponent;
-  @ViewChild('fileGPhotos') gphoto!: FileManagerComponent;
+  //@ViewChild('fileLocal') local!: FileManagerComponent;
+  //@ViewChild('fileGPhotos') gphoto!: FileManagerComponent;
   
   services: any = {}
 
