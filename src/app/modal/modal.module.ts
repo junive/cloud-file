@@ -1,14 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DialogSaveInputComponent } from './dialog-save-input/dialog-save-input.component';
+import { DialogInputComponent } from './dialog-input/dialog-input.component';
 
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DialogService } from './dialog.service';
+import { DialogSelectComponent } from './dialog-select/dialog-select.component';
+
 
 @NgModule({
   declarations: [
-    DialogSaveInputComponent
+    DialogInputComponent,
+    DialogSelectComponent
   ],
   imports: [
     CommonModule,
@@ -18,4 +20,4 @@ import { DialogService } from './dialog.service';
   providers: [ ],
 })
 
-export class DialogModule { }
+export class ModalModule { }

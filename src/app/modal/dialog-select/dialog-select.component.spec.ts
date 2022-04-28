@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FileManagerComponent } from './file-manager.component';
+import { DialogSelectComponent } from './dialog-select.component';
 
-describe('FileManagerComponent', () => {
-  let component: FileManagerComponent;
-  let fixture: ComponentFixture<FileManagerComponent>;
+describe('DialogSelectComponent', () => {
+  let component: DialogSelectComponent;
+  let fixture: ComponentFixture<DialogSelectComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FileManagerComponent ]
+      declarations: [ DialogSelectComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FileManagerComponent);
+    fixture = TestBed.createComponent(DialogSelectComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

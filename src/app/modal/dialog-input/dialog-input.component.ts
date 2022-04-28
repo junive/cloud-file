@@ -1,16 +1,16 @@
 import { Component, HostListener } from '@angular/core';
-import { MyDialogSaveInput } from 'src/app/dialog/_model/my-dialog';
-import { MyDialogSaveComponent } from '../_model/my-dialog-component';
+import { MyDialogInput } from 'src/app/modal/_model/my-modal';
+import { MyDialogInputComponent } from '../_model/my-modal-component';
 import { MyDialogSimpleError } from '../_model/my-dialog-error';
 
 @Component({
   selector: "my-simple-dialog",
-  templateUrl: './dialog-save-input.html',
-  styleUrls: ['./dialog-save-input.css']
+  templateUrl: './dialog-input.html',
+  styleUrls: ['./dialog-input.css']
 })
 
-export class DialogSaveInputComponent implements MyDialogSaveComponent {
-  dialog?: MyDialogSaveInput;
+export class DialogInputComponent implements MyDialogInputComponent {
+  dialog?: MyDialogInput;
   dialogError?: MyDialogSimpleError;
   
   constructor( ) {  }
@@ -30,7 +30,7 @@ export class DialogSaveInputComponent implements MyDialogSaveComponent {
     return this.close();
   }
 
-  setDialog(dialog: MyDialogSaveInput) {
+  setModal(dialog: MyDialogInput) {
     this.dialog = dialog;
   }
 

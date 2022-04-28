@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
-import { FileLocalService } from './_service/file-local.service';
-import { FileGPhotoService } from './_service/file-gphoto.service';
+import { FileLocalController } from './file/_controller/file-local.controller';
+import { FileGooglePhotosController } from './file/_controller/file-google-photos.controller';
 import { BrowserModule } from '@angular/platform-browser';
 import { FileManagerModule } from './file/file.module';
-import { DialogService } from './dialog/dialog.service';
+import { ModalService } from './modal/modal.service';
 
 @NgModule({
   declarations: [
@@ -16,9 +16,9 @@ import { DialogService } from './dialog/dialog.service';
     FileManagerModule
   ],
   providers: [
-    FileLocalService,
-    FileGPhotoService,
-    DialogService,
+    FileLocalController,
+    FileGooglePhotosController,
+    ModalService,
   ],
   bootstrap: [AppComponent],
   

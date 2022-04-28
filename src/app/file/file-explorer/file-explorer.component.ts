@@ -1,172 +1,164 @@
-import { Component, Input, Output, EventEmitter, ViewChild, HostListener, ElementRef,  ChangeDetectionStrategy } from '@angular/core'
-import { MyFile } from '../_model/my-file';
-import { MyFolder } from '../_model/my-folder';
-import { MyDialogSaveInput } from '../../dialog/_model/my-dialog';
+import { Component, Input, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core'
+import { MyFile, MyFolder } from '../_model/my-file';
+import { MyDialogInput, MyDialogSelect } from '../../modal/_model/my-modal';
 import { MySvgAsset } from 'src/assets/svg';
-import { DialogService } from '../../dialog/dialog.service';
-import { DialogSaveInputComponent } from 'src/app/dialog/dialog-save-input/dialog-save-input.component';
+import { MyFileConfig } from '../_model/my-file-config';
+import { FileExplorerService } from '../_service/file-explorer.service';
+import { FileManagerService } from '../_service/file-manager.service';
+import { MyFileController } from '../_model/my-file-controller';
 
 @Component({
   selector: "my-file-explorer",
   templateUrl: './file-explorer.html',
   styleUrls: ['./file-explorer.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    FileExplorerService,
+    FileManagerService
+  ],
 })
 
 export class FileExplorerComponent {
 
-  //@ViewChild('fileContainerRef', { read: ViewContainerRef  }) fileContainerRef!: ViewContainerRef;
-  //@ViewChild('fileTemplateRef', { read: TemplateRef }) fileTemplateRef!: TemplateRef<any>;
-
-  //@ViewChild("contextMenuRef") contextMenuRef!: ElementRef;
-  //@ViewChild("menuMoveFileRef") moveFileMenuRef!: ElementRef;
-  
-
-  @Input() filesReact: MyFile[] = [];
-  @Input() navFoldersReact: MyFolder[] = []; 
- 
+  myfiles: MyFile[] = [];
+  navPath: MyFolder[] = [];
   selectedIds: string[] = [];
   mysvg = MySvgAsset;
+
+  @Input() config: MyFileConfig = {};
+  @Input() controller!: MyFileController;
 
   menu: any = {
     context: { hide: true, top: 0, left: 0  },
     move: { hide: true, top: 0, left: 0 }
   }
-  
-  @Output() addFolderEvent = new EventEmitter<string>()
-  @Output() renameFileEvent = new EventEmitter<{
-    fileId: string, newName: string
-  }>()
-  @Output() moveFileEvent = new EventEmitter<{
-    filesId: string[], targetFolderId: string
-  }>()
-  @Output() openFileEvent = new EventEmitter<string>()
-  @Output() deleteFileEvent = new EventEmitter<string[]>()
-
 
   constructor( 
-    public dialogService: DialogService,
-   //private cdRef: ChangeDetectorRef,
-   //private renderer: Renderer2 
-      ) {  }
+    public helper: FileExplorerService,
+    public manager: FileManagerService,
+    public cdRef: ChangeDetectorRef
+  ) { }
 
-  ngAfterViewInit () { 
-    //this.fileContainerRef.createEmbeddedView(this.fileTemplateRef);
-    //this.cdRef.detectChanges();
+  ngOnInit() { 
+    this.manager.setController(this.controller);
+    this.manager.getCurrentFiles$().subscribe(files => {
+      this.myfiles = files;
+      this.helper.setFiles(this.myfiles);
+      this.cdRef.detectChanges();
+    })
+    this.navPath = [this.manager.getRootFolder()];
+    if (this.config.initFiles) this.manager.initFiles();
   }
 
-  ngOnDestroy() {
-    // console.log("toto")
-   }
+  ngAfterViewInit () {  }
 
-  getFile(fileId: string) {
-    return this.filesReact.find(
-      file => file.id == fileId
-    )
-  }
+  ngOnDestroy() {  }
 
   @HostListener('document:click', ['$event'])
-  onDocoumentClick(event: MouseEvent) {
-   this.menu.context.hide = true;
-   this.menu.move.hide = true;
+  onDocumentClick(event: MouseEvent) {
+    this.menu.context.hide = true;
+    this.menu.move.hide = true;
   }
 
-  /*
-  @HostListener('dblclick', ['$event'])
-  onDoubleClick(event: MouseEvent) {
-    const targetElem: HTMLElement = (<HTMLElement>event.target);
-    const fileId: string = targetElem.getAttribute("fileId")!;
-    if (!targetElem || !fileId) return;
-    this.openFileEmit(fileId);
+  addFolderDialog() {
+    const client = this.helper.openDialogSimple( 
+      <MyDialogInput> { title: "Add Folder"},
+      (response : MyDialogInput ) => {
+        this.manager.addFolder(response.name!)
+      }
+    );
   }
-*/
 
-  //@HostListener('contextmenu', ['$event'])
+  deleteFileEmit(): void {
+    this.manager.deleteFiles(this.selectedIds)
+  }
+
+
+  openFileEmit(fileId: string) {
+   // this.openFileEvent.emit(fileId);
+  }
+
+  openFolderEmit(folderId: string) {
+    // getFile is not the same of callback
+    const clickedFolder = this.helper.getFile(folderId)!;
+    this.manager.openFolder(folderId, () => {
+      this.navPath = this.helper.getNavPath(this.navPath, folderId);
+      if (clickedFolder) this.navPath.push(clickedFolder);
+    });
+  }
+
   openMenuContext(event: MouseEvent, fileId:string) {
     event.preventDefault();
     this.selectedIds = [];
     this.selectedIds.push(fileId);
-    //const targetElem: HTMLElement = (<HTMLElement>event.target);
-    //const fileId: string = targetElem.getAttribute("fileId")!
-   
-    //if (!targetElem || !fileId) return;
-    // ToDo : improve the position on scroll, offPage etc... 
-   
     this.menu.context.top =  event.pageY  + 'px'; 
     this.menu.context.left = event.pageX + 'px'; 
     this.menu.context.hide = false;
-    //this.selectFilesEvent.emit([fileId])
   }
-
 
   openMenuMove(event: MouseEvent, buttonMoveFiles: any) {
     // Cannot move a single file or move file if not folder present
     //if (files.length < 2  || !files[0].isFolder ) return;
     const rect = buttonMoveFiles.getBoundingClientRect();
-    
     this.menu.move.top = rect.top - 10 + 'px'; 
     this.menu.move.left = rect.right - 1 + 'px'; 
-    //element.style.display = 'block';
     this.menu.move.hide = false;
-  }
-
-  //getFileContainer(): ViewContainerRef {
-    //return this.fileContainer;
-  //}
-
-  //getFileTemplate(): TemplateRef<any> {
-    //return this.fileTemplate;
-  //}
-
-  deleteFileEmit(): void {
-    this.deleteFileEvent.emit(this.selectedIds);
   }
 
   moveFilesEmit(folderTargetId: string) {
     if (this.selectedIds.length == 0) return;
-    this.moveFileEvent.emit( {
-      filesId : this.selectedIds,
-      targetFolderId : folderTargetId 
-    });
+    const moveIds = [...this.selectedIds];
+    const dialog = <MyDialogSelect> {
+      title: "Imports options",
+      subtitle: "One or more elements already exist",
+      selection: new Map<string,string>([
+        ["replace", "Replace Existing files"],
+        ["keep", "Keep all files"]
+      ]),
+      selected: "replace"
+    }
+    
+    const move = () => {
+      this.manager.moveFiles(moveIds, folderTargetId )
+    }
+
+    const targets = (targetFiles: MyFile[]) => {
+      const duplicatedIds = this.helper.getIdsByDuplicateName(targetFiles)
+
+      const client = (response: MyDialogSelect) => {
+        if (response.selected === "replace") {
+          this.manager.deleteFiles( duplicatedIds, {
+            refresh: false, callback: move()
+          });
+        } else if (response.selected === "keep") {
+          this.helper.renameFiles(targetFiles);
+          move();
+        }
+      }
+
+      if (duplicatedIds.length == 0) move();
+       else this.helper.openDialogSelect(dialog, client);
+    }
+
+    this.manager.getFiles(folderTargetId, { callback : targets });
   }
 
-  openFileEmit(fileId: string) {
-    this.openFileEvent.emit(fileId);
-  }
-
-  dialogRenameFile() {
+  renameFileDialog() {
     if (this.selectedIds.length == 0) return;
-    const fileId = this.selectedIds[0];
-    this.dialogService.openDialogSave(
-      DialogSaveInputComponent, 
-      <MyDialogSaveInput> {
-        title: "Rename the file",
-        name: this.getFile(fileId)?.name
+    const client = this.helper.openDialogSimple(
+      <MyDialogInput> {
+        id: this.selectedIds[0],
+        title: "Rename the file"
+      },
+      (response: MyDialogInput) => {
+        const file = this.helper.getFile(response.id!)!
+        file.name = response.name!;
+        this.manager.updateFile(file);
       }
-    ).subscribe(
-      (response : MyDialogSaveInput) => {
-        this.renameFileEvent.emit({
-          fileId: this.selectedIds[0], 
-          newName: response.name!
-        } );
-        console.log(response)
-      }
-    );
+    )
   }
 
-  dialogAddFolder() {
-    this.dialogService.openDialogSave(
-      DialogSaveInputComponent, 
-      <MyDialogSaveInput> {
-        title: "Add new Folder"
-      }
-    ).subscribe(
-      (response : MyDialogSaveInput) => {
-        this.addFolderEvent.emit(response.name)
-        console.log(response)
-      }
-    );
-  }
+
 
 
 }

@@ -3,9 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  ROOT_FOLDER_ID: "root",
-  ROOT_FOLDER_NAME : "Home"
+  production: false
 };
 
 /*
