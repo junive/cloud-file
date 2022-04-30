@@ -6,18 +6,19 @@
 	<p>{{dialog!.subtitle}}</p>
 	<div *ngFor="let item of dialog!.selection | keyvalue;let index = index; "
 		class="form-check"
-		(click)="dialog.selected = item.key"
+		
 	>
 		<input
 			class="form-check-input" 
 			type="radio" 
 			name="flexRadioDefault" 
-			id="flexRadioDefault1"
-			[checked]="dialog!.selected"
+			[checked]="dialog.selected == item.key"
+			[value]="item.key"
+			[(ngModel)]="dialog.selected"
 		>
 		<label 
 			class="form-check-label" 
-			for="flexRadioDefault1"
+			(click)="dialog.selected = item.key"
 		>
 			{{item.value}}
 		</label>

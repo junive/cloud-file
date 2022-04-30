@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { MyFile, MyFolder } from '../_model/my-file'
+import { MyFile, MyFolder } from '../model/my-file'
 import { BehaviorSubject, Observable } from 'rxjs'
-import { MyFileController } from '../_model/my-file-controller';
+import { MyFileController } from '../model/my-file-controller';
 import { environment } from 'src/environments/environment';
-import { MyFileList } from '../_service/file-list.helper';
+import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
 
 @Injectable()
@@ -32,8 +32,8 @@ export class FileLocalController implements MyFileController {
       this.fileList.createFile({id:v4(), name: 'File A', parentId: this.root.id }); 
       this.fileList.createFile({id:v4(), name: 'File B', parentId: this.root.id }); 
 
-      for (let i =0; i<10000 ; i++) {
-        this.fileList.createFolder({ id:v4(), name: 'Folder 0', parentId: this.root.id });
+      for (let i =1; i<10000 ; i++) {
+        this.fileList.createFolder({ id:v4(), name: 'Folder '+i, parentId: this.root.id });
       }
 
   }
@@ -73,8 +73,8 @@ export class FileLocalController implements MyFileController {
     );
   }
 
-  updateFile(file: MyFile): Observable<void> {
-    return this.observable(()=>{});
+  updateFiles(files: MyFile[]): Observable<void> {
+    return this.observable(() => {});
   }
 
   observable(request:any) {

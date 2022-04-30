@@ -1,4 +1,4 @@
-import { MyFile, MyFolder } from "../_model/my-file";
+import { MyFile, MyFolder } from "../model/my-file";
 
 export class MyFileList {
   private mapFiles: Map<string, MyFile[]> = new Map<string, MyFile[]>();
@@ -150,10 +150,20 @@ export class MyFileList {
     this.sortByFolderASC(folderId);
     this.get(folderId)!.sort((a,b) => {
       if (a.isFolder != b.isFolder) return 0;
-      return a.name.localeCompare(b.name);
+      return a.name.localeCompare(b.name, 
+        undefined, {numeric: true, sensitivity: 'base'});
     });
   }
 
+  updateFiles(files: MyFile[]) {
+    files.forEach(file => {
+      this.get(file.parentId)!.forEach((oldFile, index) => { 
+        if (file.id != oldFile.id) return; // No Match
+        
+           oldFile = file; 
+      })
+    });
+  }
 
 /*
   updateName(name: string) {

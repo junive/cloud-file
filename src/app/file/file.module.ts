@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ModalModule } from '../modal/modal.module';
 import { FileExplorerComponent } from './file-explorer/file-explorer.component';
-import { FileExplorerService } from './_service/file-explorer.service';
+import { FileHelper } from './file.helper';
 
 @NgModule({
   declarations: [
@@ -17,7 +17,7 @@ import { FileExplorerService } from './_service/file-explorer.service';
     ModalModule
   ],
   providers: [
-    
+    FileHelper
   ],
   exports: [
     FileExplorerComponent

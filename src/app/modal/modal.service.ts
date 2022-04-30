@@ -10,7 +10,7 @@ import { DialogSelectComponent } from "./dialog-select/dialog-select.component";
 @Injectable()
 export class ModalService {
 
-  saveResponse: Subject<MyDialogError> = new Subject<MyDialogError>();
+  inputResponse$: Subject<MyDialogError> = new Subject<MyDialogError>();
   modalRef?: NgbModalRef;
 
   constructor( private modalService: NgbModal ) {  }
@@ -21,50 +21,67 @@ export class ModalService {
     this.modalRef = this.modalService.open(
       ModalComponent, { centered: true }
     );
-    const modalComponent: MyModalComponent = this.modalRef.componentInstance; 
-    modalComponent.setModal(modal);
-    modalComponent.dismiss = () => {
+    const component: MyModalComponent = this.modalRef.componentInstance; 
+    component!.setModal(modal);
+    component!.dismiss = () => {
       this.modalRef?.dismiss();
     }
   }
 
   openDialog( DialogComponent: any, dialog : MyModal): Subject<MyModal> {
     this.openModal( DialogComponent, dialog );
-    const dialogComponent: MyDialogComponent = this.modalRef?.componentInstance;
     const request = new Subject<MyModal>();
+    const component: MyDialogComponent = this.getComponent()
    
-    dialogComponent.close = () => {
+    component.close = () => {
       request.next(dialog);
     }
   
     return request;
   }
 
-  openDialogInput(dialog : MyDialogInput) : Subject<MyDialogInput> {
+  openDialogInput(dialog : MyDialogInput) : 
+    { request: Subject<MyDialogInput>, response:Subject<MyDialogError> } {
     const request = this.openDialog(DialogInputComponent, dialog);
-    const dialogComponent: MyDialogInputComponent = this.modalRef?.componentInstance;
-    this.saveResponse = new Subject<MyDialogError>()
+    const component: MyDialogInputComponent = this.getComponent();
+    const response = new Subject<MyDialogError>()
     
-    this.saveResponse.subscribe( {
+    response.subscribe( {
       next : (dialogError: MyDialogError) => {
-        dialogComponent.setError(dialogError);
+        component.setError(dialogError);
       }
-      //,complete : () => { this.modalRef?.close() }
     })
+
+    return { request : request, response: response };
+  }
+
+  openDialogSelect$(dialog : MyDialogSelect): Subject<MyDialogSelect> {
+    const request = this.openDialog(DialogSelectComponent, dialog);
+    const component: MyDialogComponent = this.getComponent();
+   
+    component.close = () => {
+      this.modalRef?.close();
+      request.next(dialog);
+    } 
+
     return request;
   }
 
-  openDialogSelect(dialog : MyDialogSelect): Subject<MyDialogSelect> {
-    return this.openDialog(DialogSelectComponent, dialog);
+  getComponent() {
+    return this.modalRef!.componentInstance;
   }
 
+  closeModal() {
+    this.modalRef!.close();
+  }
+/*
   sendInputError(dialogError: MyDialogError) {
-    this.saveResponse.next(dialogError);
+    this.inputResponse$.next(dialogError);
   }
 
-  confirmClosing() {
-    this.saveResponse.complete();
-    this.modalRef?.close();
+  confirmInputClosing() {
+    this.modalRef!.close();
+    this.inputResponse$.complete();
   }
-
+*/
 }

@@ -1,6 +1,6 @@
 import { Component, Injector, TemplateRef, ViewChild } from '@angular/core';
-import { FileLocalController } from './file/_controller/file-local.controller';
-import { FileGooglePhotosController } from './file/_controller/file-google-photos.controller';
+import { FileLocalController } from './file/controller/file-local.controller';
+import { FileGooglePhotosController } from './file/controller/file-google-photos.controller';
 
 @Component({
   selector: 'app-root',

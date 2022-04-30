@@ -8,5 +8,5 @@ export interface MyFileController {
     getFiles(folderId?: string): Observable<MyFile[]>;
     getRootFolder(): MyFolder
     moveFiles(filesId: string[], targetFolderId: string ) : Observable<void>;
-    updateFile(file: MyFile): Observable<void>;
+    updateFiles(file: MyFile[]): Observable<void>;
 }

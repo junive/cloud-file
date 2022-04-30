@@ -8,7 +8,7 @@ export interface MyDialogInput extends MyModal {
 }
 
 export interface MyDialogSelect extends MyModal {
-    subtitle?:string
+    subtitle?: string
     selected?: string
     selection?: Map<string, string>
 }

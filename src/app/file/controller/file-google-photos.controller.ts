@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 
-import { MyFile, MyFolder } from '../_model/my-file'
+import { MyFile, MyFolder } from '../model/my-file'
 import { BehaviorSubject } from 'rxjs'
 import { Observable } from 'rxjs'
-import { MyFileController } from '../_model/my-file-controller';
+import { MyFileController } from '../model/my-file-controller';
 import { environment } from 'src/environments/environment';
-import { MyFileList } from '../_service/file-list.helper';
+import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
 
 
@@ -62,7 +62,7 @@ export class FileGooglePhotosController implements MyFileController{
     throw new Error('Method not implemented.');
   }
 
-  updateFile(file: MyFile): Observable<void>  {
+  updateFiles(files: MyFile[]): Observable<void>  {
     throw new Error('Method not implemented.');
   }
 

@@ -1,11 +1,12 @@
 import { Component, Input, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core'
-import { MyFile, MyFolder } from '../_model/my-file';
+import { MyFile, MyFolder } from '../model/my-file';
 import { MyDialogInput, MyDialogSelect } from '../../modal/_model/my-modal';
 import { MySvgAsset } from 'src/assets/svg';
-import { MyFileConfig } from '../_model/my-file-config';
-import { FileExplorerService } from '../_service/file-explorer.service';
-import { FileManagerService } from '../_service/file-manager.service';
-import { MyFileController } from '../_model/my-file-controller';
+import { MyFileConfig } from '../model/my-file-config';
+import { FileHelper } from '../file.helper';
+import { FileExplorerAbstract } from './file-explorer.abstract';
+import { MyFileController } from '../model/my-file-controller';
+import { combineLatest, concatMap, EMPTY, filter, forkJoin, map, of, Subject, switchMap, takeUntil, takeWhile, withLatestFrom } from 'rxjs';
 
 @Component({
   selector: "my-file-explorer",
@@ -13,20 +14,20 @@ import { MyFileController } from '../_model/my-file-controller';
   styleUrls: ['./file-explorer.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    FileExplorerService,
-    FileManagerService
+   // FileManagerPipe
   ],
 })
 
-export class FileExplorerComponent {
+export class FileExplorerComponent extends FileExplorerAbstract {
 
   myfiles: MyFile[] = [];
   navPath: MyFolder[] = [];
   selectedIds: string[] = [];
+  //manager: FileManagerPipe
   mysvg = MySvgAsset;
 
   @Input() config: MyFileConfig = {};
-  @Input() controller!: MyFileController;
+  @Input() pipeController!: MyFileController;
 
   menu: any = {
     context: { hide: true, top: 0, left: 0  },
@@ -34,25 +35,32 @@ export class FileExplorerComponent {
   }
 
   constructor( 
-    public helper: FileExplorerService,
-    public manager: FileManagerService,
+    public helper: FileHelper,
+   // public manager: FileManagerService,
     public cdRef: ChangeDetectorRef
-  ) { }
-
-  ngOnInit() { 
-    this.manager.setController(this.controller);
-    this.manager.getCurrentFiles$().subscribe(files => {
-      this.myfiles = files;
-      this.helper.setFiles(this.myfiles);
-      this.cdRef.detectChanges();
-    })
-    this.navPath = [this.manager.getRootFolder()];
-    if (this.config.initFiles) this.manager.initFiles();
+  ) { 
+    super();
+   // this.manager = new FileManagerPipe(this);
   }
 
-  ngAfterViewInit () {  }
+  private timeStartA:any; 
 
-  ngOnDestroy() {  }
+  ngOnInit() { 
+    this.timeStartA = Date.now();
+    super.controller = this.pipeController;
+    this.getCurrentFiles$().subscribe(files => {
+      this.myfiles = files;
+      this.cdRef.detectChanges();
+    })
+    this.navPath = [this.getRootFolder()];
+    if (this.config.initFiles) this.initFiles();
+  }
+
+
+  ngAfterViewInit () { 
+    console.log((Date.now() - this.timeStartA))
+   }
+
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -61,30 +69,33 @@ export class FileExplorerComponent {
   }
 
   addFolderDialog() {
-    const client = this.helper.openDialogSimple( 
-      <MyDialogInput> { title: "Add Folder"},
-      (response : MyDialogInput ) => {
-        this.manager.addFolder(response.name!)
-      }
-    );
+    const dialog = this.helper.dialogInputAddFolder;
+    this.helper.openDialogInput(dialog, this.myfiles, () => {
+      this.addFolder(dialog.name!)
+    });
+
   }
 
   deleteFileEmit(): void {
-    this.manager.deleteFiles(this.selectedIds)
+    this.deleteFiles(this.selectedIds)
   }
 
+  getFile(fileId: string) {
+    return this.myfiles.find( file => file.id == fileId  )
+  }
 
   openFileEmit(fileId: string) {
    // this.openFileEvent.emit(fileId);
   }
 
   openFolderEmit(folderId: string) {
-    // getFile is not the same of callback
-    const clickedFolder = this.helper.getFile(folderId)!;
-    this.manager.openFolder(folderId, () => {
+    // getFile() is not the same after subscribing
+    const clickedFolder = this.getFile(folderId)!;
+    this.openFolder$(folderId).subscribe(() => {
       this.navPath = this.helper.getNavPath(this.navPath, folderId);
       if (clickedFolder) this.navPath.push(clickedFolder);
     });
+    
   }
 
   openMenuContext(event: MouseEvent, fileId:string) {
@@ -105,9 +116,12 @@ export class FileExplorerComponent {
     this.menu.move.hide = false;
   }
 
-  moveFilesEmit(folderTargetId: string) {
+  moveFilesEmit(targetId: string) {
     if (this.selectedIds.length == 0) return;
+
     const moveIds = [...this.selectedIds];
+    const moveFiles = this.helper.filterIds(moveIds, this.myfiles);
+
     const dialog = <MyDialogSelect> {
       title: "Imports options",
       subtitle: "One or more elements already exist",
@@ -117,45 +131,64 @@ export class FileExplorerComponent {
       ]),
       selected: "replace"
     }
-    
-    const move = () => {
-      this.manager.moveFiles(moveIds, folderTargetId )
-    }
 
-    const targets = (targetFiles: MyFile[]) => {
-      const duplicatedIds = this.helper.getIdsByDuplicateName(targetFiles)
-
-      const client = (response: MyDialogSelect) => {
-        if (response.selected === "replace") {
-          this.manager.deleteFiles( duplicatedIds, {
-            refresh: false, callback: move()
-          });
-        } else if (response.selected === "keep") {
-          this.helper.renameFiles(targetFiles);
-          move();
-        }
-      }
-
-      if (duplicatedIds.length == 0) move();
-       else this.helper.openDialogSelect(dialog, client);
-    }
-
-    this.manager.getFiles(folderTargetId, { callback : targets });
+    this.getFiles$(targetId).pipe(
+      concatMap( (targetFiles: MyFile[]) => {
+        const sameFiles = this.helper.filterSameNames(moveFiles, targetFiles);
+        return (sameFiles.length == 0) ?
+          this.moveFiles$(moveIds, targetId) :
+          this.helper.openDialogSelect$(dialog).pipe(
+          concatMap( (dialogResponse:MyDialogSelect) => {
+            if (dialogResponse.selected === "replace") {
+              const targetIds = sameFiles.map(file => file.id);
+              return combineLatest([
+                this.moveFiles$(moveIds, targetId),
+                this.deleteFiles$(targetIds)
+              ])
+            } 
+            if (dialogResponse.selected === "keep") {
+              this.helper.renameFiles(moveFiles, targetFiles);
+              return combineLatest([
+                this.updateFiles$(moveFiles),
+                this.moveFiles$(moveIds, targetId)
+              ])
+            } 
+            return EMPTY;
+          })
+        )
+    })
+    ).subscribe(() => this.refreshFiles() );
   }
 
   renameFileDialog() {
     if (this.selectedIds.length == 0) return;
-    const client = this.helper.openDialogSimple(
-      <MyDialogInput> {
-        id: this.selectedIds[0],
-        title: "Rename the file"
-      },
-      (response: MyDialogInput) => {
-        const file = this.helper.getFile(response.id!)!
-        file.name = response.name!;
-        this.manager.updateFile(file);
+   
+    const dialog = this.helper.dialogInputRename;
+    dialog.id = this.selectedIds[0], 
+    dialog.name = this.getFile(this.selectedIds[0])!.name
+
+    this.helper.openDialogInput(
+      dialog, this.myfiles, () => {
+        const file = this.getFile(dialog.id!)!
+        file.name = dialog.name!;
+        this.updateFiles([file]);
       }
     )
+
+
+/*
+
+
+    this.helper.openDialogInput$(dialog).subscribe(
+      (response: MyDialogInput) => {
+        if (this.helper.closeDialogSimple(response.name!, this.myfiles)) {
+          const file = this.getFile(response.id!)!
+          file.name = response.name!;
+          this.manager.updateFiles([file]);
+        }
+      }
+    )
+    */
   }
 
 

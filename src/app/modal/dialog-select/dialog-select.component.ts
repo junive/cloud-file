@@ -13,14 +13,10 @@ export class DialogSelectComponent implements MyDialogComponent {
 
   constructor() { }
 
-  ngOnInit(): void {
-  }
-
   setModal(dialog: MyDialogSelect) {
     this.dialog = dialog;
   }
 
   dismiss() { }
-
   close() { }
 }
