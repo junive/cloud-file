@@ -38,7 +38,7 @@ export class FileLocalController implements MyFileController {
 
   }
 
-  addFolder(name: string, parentId: string): Observable<void> {
+  addFolder$(name: string, parentId: string): Observable<void> {
     return this.observable(
       this.fileList.createFolder({
         id:v4(), name: name, parentId: parentId
@@ -47,15 +47,15 @@ export class FileLocalController implements MyFileController {
     //this.fileList.sortbyNameASC(parentId);
   }
 
-  deleteFiles(filesId: string[]): Observable<void> {
+  deleteFiles$(filesId: string[]): Observable<void> {
     return this.observable(this.fileList.deleteFiles(filesId))
   }
 
-  getFile(fileId: string): Observable<MyFile> {
+  getFile$(fileId: string): Observable<MyFile> {
     return this.observable(this.fileList.getFile(fileId));
   }
 
-  getFiles(folderId?: string): Observable<MyFile[]> {
+  getFiles$(folderId?: string): Observable<MyFile[]> {
     return new Observable<MyFile[]> (obs => {
       if (!folderId) folderId = this.root.id;
       this.fileList.sortbyNameASC(folderId);
@@ -67,13 +67,13 @@ export class FileLocalController implements MyFileController {
     return this.root;
   }
 
-  moveFiles(filesId: string[], targetFolderId: string ): Observable<void>  {
+  moveFiles$(filesId: string[], targetFolderId: string ): Observable<void>  {
     return this.observable(
       this.fileList.moveFiles(filesId, targetFolderId)
     );
   }
 
-  updateFiles(files: MyFile[]): Observable<void> {
+  updateFiles$(files: MyFile[]): Observable<void> {
     return this.observable(() => {});
   }
 

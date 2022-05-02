@@ -1,7 +1,9 @@
 import { Component, HostListener } from '@angular/core';
 import { MyDialogInput } from 'src/app/modal/_model/my-modal';
-import { MyDialogInputComponent } from '../_model/my-modal-component';
-import { MyDialogSimpleError } from '../_model/my-dialog-error';
+import { MyDialogComponent } from '../_model/my-modal-component';
+import { AbstractControl, AsyncValidatorFn, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, of, pipe, Subject, switchMap, take, timer } from 'rxjs';
+import { MyFile } from 'src/app/file/model/my-file';
 
 @Component({
   selector: "my-simple-dialog",
@@ -9,13 +11,28 @@ import { MyDialogSimpleError } from '../_model/my-dialog-error';
   styleUrls: ['./dialog-input.css']
 })
 
-export class DialogInputComponent implements MyDialogInputComponent {
+export class DialogInputComponent implements MyDialogComponent {
   dialog?: MyDialogInput;
-  dialogError?: MyDialogSimpleError;
+
+  inputControl: FormControl = new FormControl("", {
+    validators: [Validators.required],
+    updateOn: 'change' 
+  });
+
+  form:FormGroup = this.fb.group({
+    myinput: this.inputControl
+  });
   
-  constructor( ) {  }
+ 
+  constructor(private fb: FormBuilder, ) {  }
 
   ngAfterViewInit() { }
+
+  ngOnInit() {
+    
+  }
+
+
 
 /* 
   @HostListener('document:keydown.escape', ['$event']) 
@@ -27,15 +44,43 @@ export class DialogInputComponent implements MyDialogInputComponent {
 
   @HostListener('document:keydown.enter', ['$event']) 
   onEnterHandler(event: KeyboardEvent) {
-    return this.close();
+    return this.save();
+  }
+
+  get myinput() { 
+    return this.form.controls['myinput'];
+  }
+
+  isUniqueName(dialog: MyDialogInput) : AsyncValidatorFn  {
+    return function(control: AbstractControl) : Observable<ValidationErrors | null> {
+      if (!control.value) return of(null);
+      return control.valueChanges.pipe(
+        switchMap(() => dialog.files$!),
+        debounceTime(200),
+        distinctUntilChanged(),
+        take(1),
+        map( (files:MyFile[]) => {
+          const nameExist = files.some(file => file.name == control.value);
+          return nameExist ? { fileExist:true} : null
+        }),
+      )
+    }
   }
 
   setModal(dialog: MyDialogInput) {
     this.dialog = dialog;
+    this.inputControl.addAsyncValidators(
+      this.isUniqueName(dialog)
+    ); 
+    this.form.setValue({
+      myinput: this.dialog.name ? dialog.name : ""
+    })
   }
 
-  setError(dialogError: MyDialogSimpleError): void {
-    this.dialogError = dialogError;
+  save() {
+    if (!this.form.valid) return;
+    this.dialog!.name = this.form.value.myinput
+    this.close();
   }
 
   dismiss() { }
@@ -49,13 +94,7 @@ export class DialogInputComponent implements MyDialogInputComponent {
 
 
 
-
-
   
-
-
-
-
 
 
 }

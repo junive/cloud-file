@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 
 import { MyFile, MyFolder } from '../model/my-file'
-import { BehaviorSubject } from 'rxjs'
 import { Observable } from 'rxjs'
 import { MyFileController } from '../model/my-file-controller';
-import { environment } from 'src/environments/environment';
 import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
 
@@ -35,11 +33,11 @@ export class FileGooglePhotosController implements MyFileController{
     return this.root;
   }
 
-  getFile(fileId: string): Observable<MyFile> {
+  getFile$(fileId: string): Observable<MyFile> {
     throw new Error('Method not implemented.');
   }
 
-  getFiles(folderId?: string) {
+  getFiles$(folderId?: string) {
     const id = folderId ? folderId : this.root.id;
     this.fileList.sortbyNameASC(id);
     return new Observable<MyFile[]> (obs => {
@@ -48,21 +46,21 @@ export class FileGooglePhotosController implements MyFileController{
     
   }
 
-  addFolder(name: string, parentId: string): Observable<void>  {
+  addFolder$(name: string, parentId: string): Observable<void>  {
     return new Observable<void> (obs => {
       this.fileList.createFolder({id:v4(), name: name, parentId: parentId} );
     });
   }
 
-  deleteFiles(filesId: string[]): Observable<void> {
+  deleteFiles$(filesId: string[]): Observable<void> {
     throw new Error('Method not implemented.');
   }
 
-  moveFiles(filesId: string[], targetFolderId: string): Observable<void>  {
+  moveFiles$(filesId: string[], targetFolderId: string): Observable<void>  {
     throw new Error('Method not implemented.');
   }
 
-  updateFiles(files: MyFile[]): Observable<void>  {
+  updateFiles$(files: MyFile[]): Observable<void>  {
     throw new Error('Method not implemented.');
   }
 

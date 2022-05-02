@@ -1,10 +1,14 @@
+import { AsyncValidatorFn } from "@angular/forms";
+import { Observable } from "rxjs";
+import { MyFile } from "src/app/file/model/my-file";
+
 export interface MyModal {
     title?: string
 }
 
 export interface MyDialogInput extends MyModal {
-    id?: string
     name?: string
+    files$?: Observable<MyFile[]>
 }
 
 export interface MyDialogSelect extends MyModal {

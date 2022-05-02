@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogInputComponent } from './dialog-input/dialog-input.component';
 
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DialogSelectComponent } from './dialog-select/dialog-select.component';
 
@@ -15,6 +15,7 @@ import { DialogSelectComponent } from './dialog-select/dialog-select.component';
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     NgbModule
   ],
   providers: [ ],

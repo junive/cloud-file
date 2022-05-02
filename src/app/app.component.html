@@ -1,6 +1,6 @@
 Hello World
 <my-file-explorer #fileLocal
-    [pipeController]="controllers.local"
+    [fileController]="controllers.local"
     [config]="{
         initFiles: true
     }"
@@ -8,7 +8,7 @@ Hello World
 </my-file-explorer>
 
 <my-file-explorer #fileGPhotos
-    [pipeController]="controllers.gphoto"
+    [fileController]="controllers.gphoto"
     [config]="{
         initFiles: true,
         hideNavFolder: true
