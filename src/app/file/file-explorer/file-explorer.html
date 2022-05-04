@@ -6,10 +6,10 @@
     [attr.aria-label]="'breadcrumb'">
     <ol [class]="'breadcrumb'">
       <li *ngFor="let folder of navPath; let index = index"
+        (click)="openFolderEmit(folder.id)" 
         [class]="'breadcrumb-item'"
         [class.active]="(navPath.length - 1 == index)"
         [innerHTML]="folder.name"
-        (click)="openFolderEmit(folder.id)" 
       ></li>
     </ol>
   </nav>

@@ -1,0 +1,46 @@
+<div class="modal-header">
+  <h5  class="modal-title">{{ text.title }}</h5>
+  <button type="button" 
+    class="btn-close"
+    aria-label="Close"
+    (click)="dismiss()"
+  ></button>
+</div>
+<form [formGroup]="form">
+  <div class="modal-body">
+    <div>
+      <input type="text"
+        class="form-control" 
+        formControlName="myinput"
+        ngbAutofocus
+      />
+    </div>
+    <p></p>
+    <div style="height: 3rem;">
+      <div *ngIf="myinput.errors && form.dirty && myinput.value != dialog!.name">
+        <div *ngFor="let error of myinput.errors | keyvalue"
+          class="alert alert-danger"
+          role="alert">
+          <span *ngIf="error.key == 'required'">
+            Please Provide a name.
+          </span>
+          <span *ngIf="error.key == 'fileExist'">
+            Name already exists.
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" 
+      class="btn btn-secondary"  
+      (click)="dismiss()">Close
+    </button>
+    <button type="button"
+      class="btn btn-primary"
+      [disabled]="!form.valid"
+      (click)="save();">
+      Save changes
+    </button>
+  </div>
+</form>

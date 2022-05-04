@@ -2,7 +2,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ModalModule } from '../modal/modal.module';
+import { DialogModule } from '../dialog/dialog.module';
 import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 import { FileHelper } from './file.helper';
 
@@ -15,7 +15,7 @@ import { FileHelper } from './file.helper';
     ScrollingModule,
     FormsModule,
     ReactiveFormsModule, 
-    ModalModule
+    DialogModule
   ],
   providers: [
     FileHelper

@@ -1,16 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DialogInputComponent } from './dialog-input/dialog-input.component';
-
+import { DialogNamingComponent } from './dialog-naming/dialog-naming.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DialogSelectComponent } from './dialog-select/dialog-select.component';
+import { DialogSelectingComponent } from './dialog-selecting/dialog-selecting.component';
 
 
 @NgModule({
   declarations: [
-    DialogInputComponent,
-    DialogSelectComponent
+    DialogNamingComponent,
+    DialogSelectingComponent
   ],
   imports: [
     CommonModule,
@@ -21,4 +20,4 @@ import { DialogSelectComponent } from './dialog-select/dialog-select.component';
   providers: [ ],
 })
 
-export class ModalModule { }
+export class DialogModule { }

@@ -1,8 +1,8 @@
-import { ReturnStatement } from "@angular/compiler";
-import { ChangeDetectorRef } from "@angular/core";
-import { combineLatest, concatMap, EMPTY, Observable, Subject, tap } from "rxjs";
-import { ModalService } from "src/app/modal/modal.service";
-import { MyDialogInput, MyDialogSelect } from "src/app/modal/_model/my-modal";
+import { combineLatest, concatMap, Observable, Subject, tap } from "rxjs";
+import { DialogService } from "src/app/dialog/dialog.service";
+import { DialogValidator } from "src/app/dialog/dialog.validator";
+import { MyDialogNaming } from "src/app/dialog/model/my-dialog";
+import { MyDialogSelectingType } from "src/app/dialog/model/my-dialog-type";
 import { FileHelper } from "../file.helper";
 import { MyFile, MyFolder } from "../model/my-file";
 import { MyFileController } from "../model/my-file-controller";
@@ -11,16 +11,16 @@ import { MyFileController } from "../model/my-file-controller";
 export class FileExplorerAbstract {
 
   controller!: MyFileController;
+  validator!: DialogValidator;
 
   files$: Subject<MyFile[]> = new Subject<MyFile[]>();
   files: MyFile[] = [];
-  currentId: string = "";
+  //currentId: string = "";
   navPath: MyFolder[] = [];
  
-
   constructor( 
     public helper: FileHelper, 
-    public modalService: ModalService,
+    public dialogService: DialogService,
     //public cdRef: ChangeDetectorRef
   ) {  }
 
@@ -31,103 +31,129 @@ export class FileExplorerAbstract {
       this.files = [...files];
       //this.cdRef.detectChanges();
     })
-    const root = this.controller.getRootFolder()
-    this.navPath = [root];
-    this.currentId = folderId ? folderId : root.id;
+    const root = this.controller.getRootFolder();
+    this.controller.currentId = folderId ? folderId : root.id;
+    this.validator = new DialogValidator(this.controller);
+    this.refreshNavPath(this.controller.currentId);
     this.refreshFiles();
   }
 
-  addFolder(dialog: MyDialogInput) {
-    dialog.files$ = this.getCurrentFiles$();
-    this.modalService.openDialogInput$(dialog).pipe(concatMap( () => 
-        this.controller.addFolder$(dialog.name!, this.currentId!)
-    )).subscribe(()=> this.refreshFiles())
-    
+  addFolder() {
+    this.dialogService.openAdd$(this.validator)
+      .pipe( concatMap( (dialog: MyDialogNaming) => 
+        this.controller.addFolder$(dialog.name!, this.controller.currentId)
+      )
+    ).subscribe( () => this.refreshFiles() )
   }
 
   deleteFiles(filesId: string[]) {
-    this.controller.deleteFiles$(filesId)
-      .subscribe(response => this.refreshFiles());
+    const deletes$: Observable<void>[] = [];
+    filesId.forEach(id => deletes$.push(this.controller.deleteFile$(id)))
+    combineLatest(deletes$).subscribe(response => this.refreshFiles());
   }
-
+/*
   getFile(fileId: string) {
     return this.files.find( file => file.id == fileId  )
   }
 
-  getCurrentFiles$() {
-    return this.controller.getFiles$(this.currentId);
+  getCurrentFiles$ = () =>{
+    const q= {driveId:this.currentId, orderBy:"asc"}
+    return this.controller.getFiles$(q);
   }
+*/
+  moveFiles(movesId: string[], targetId: string ) {
+    const updates$: Observable<void>[] = [];
+    
+    const openDialog$ = (moveFiles: MyFile[], targetFiles:MyFile[]) => {
+      return this.dialogService.openMove$().pipe(
+        concatMap( (dialog) => {
+          if (dialog!.selected === MyDialogSelectingType.MOVE_REPLACE) {
+            const twins = this.helper.filterTwins(moveFiles, targetFiles);
+            const queries = this.helper.getMoveQ(moveFiles, targetId);
+            queries.forEach(q => updates$.push(this.controller.updateFile$(q)));
+            twins.forEach(file => updates$.push(this.controller.deleteFile$(file.id)))
+          }
+          if (dialog!.selected === MyDialogSelectingType.MOVE_KEEP) {
+            const queries = this.helper.getMoveQ(moveFiles, targetId, targetFiles);
+            queries.forEach(q => updates$.push(this.controller.updateFile$(q)));
+          } 
+          return combineLatest(updates$);
+        })
+      )
+    }
 
-  moveFiles(dialog:MyDialogSelect, moveIds: string[], targetId: string ) {
-    const moveFiles = this.helper.filterFiles(moveIds, this.files);
-    this.controller.getFiles$(targetId).pipe(
-      concatMap( (targetFiles: MyFile[]) => {
-        const duplicateFiles = this.helper.filterSameNames(moveFiles, targetFiles);
-        return (duplicateFiles.length == 0) ?
-          this.controller.moveFiles$(moveIds, targetId) :
-          this.modalService.openDialogSelect$(dialog).pipe(
-          concatMap( () => {
-            if (dialog.selected === "replace") {
-              const targetIds = duplicateFiles.map(file => file.id);
-              return combineLatest([
-                this.controller.moveFiles$(moveIds, targetId),
-                this.controller.deleteFiles$(targetIds)
-              ])
-            } 
-            if (dialog.selected === "keep") {
-              this.helper.renameFiles(moveFiles, targetFiles);
-              return combineLatest([
-                this.controller.updateFiles$(moveFiles),
-                this.controller.moveFiles$(moveIds, targetId)
-              ])
-            } 
-            return EMPTY;
+    this.controller.getFiles$({filesId: movesId}).pipe(
+      concatMap( (moveFiles:MyFile[]) => {
+        return this.controller.getFiles$({driveId: targetId}).pipe(
+          concatMap( (targetFiles:MyFile[]) => {
+            if (this.helper.hasTwin(moveFiles, targetFiles)) {
+              return openDialog$(moveFiles, targetFiles)
+            }
+            const queries = this.helper.getMoveQ(moveFiles, targetId);
+            queries.forEach(q => updates$.push(this.controller.updateFile$(q)));
+            return combineLatest(updates$);
           })
         )
-      }
-    )).subscribe(() => this.refreshFiles() );
-  }
+      })
+    ).subscribe(()=> this.refreshFiles());
 
+  }
+  
 
   openFile(fileId: string) {  }
 
   openFolder(folderId: string) { 
-    const clickedFolder = this.getFile(folderId)!;
-    this.refreshFiles$(folderId).subscribe(() => {
-      this.navPath = this.helper.getNavPath(this.navPath, folderId);
-      if (clickedFolder) this.navPath.push(clickedFolder);
-      //this.cdRef.detectChanges(); 
+    this.controller.currentId = folderId;
+    this.refreshFiles$().subscribe((files: MyFile[]) => {
+      this.refreshNavPath(folderId)
     });
   }
 
-  refreshFiles$(folderId? : string) {
-    if (folderId) this.currentId = folderId;
-    return this.controller.getFiles$(this.currentId).pipe( 
-      tap( (files: MyFile[]) => this.files$.next(files))
+  refreshNavPath(folderId: string) {
+    this.navPath = [];
+    const fillNav = (id: string) => {
+      this.controller.getFile$({fileId:id}).subscribe( (file: MyFile) => {
+        this.navPath.splice(0, 0, file);
+        const root = this.controller.getRootFolder()
+        if (file.parentId != root.parentId) fillNav(file.parentId)
+      })
+    }
+    fillNav(folderId);
+  }
+
+  private refreshFiles$() {
+    const q = {driveId: this.controller.currentId, orderBy: "asc"}
+    return this.controller.getFiles$(q).pipe(
+      tap((files: MyFile[]) => this.files$.next(files) )
     );
   }
 
   refreshFiles() {
-    this.refreshFiles$().subscribe();
+    this.refreshFiles$().subscribe(() => {})
   }
 
-  renameFile(dialog: MyDialogInput, fileId: string) {
-    dialog.files$ =  this.getCurrentFiles$();
-    this.modalService.openDialogInput$(dialog)
-      .subscribe({ complete:() => {
-        const file = this.getFile(fileId)!
-        file.name = dialog.name!;
-        this.updateFiles([file]);
-      }
-    })
+  renameFile(fileId: string) {
+    const openDialog$ = (file: MyFile) => {
+      const dialog = { name: file.name, validator: this.validator }
+      return this.dialogService.openRename$(dialog).pipe(
+        concatMap( (dialog: MyDialogNaming) => {
+          const q = {fileId: file.id, name: dialog.name};
+          return this.controller.updateFile$(q);
+        })
+      )
+    }
+
+    this.controller.getFile$({fileId:fileId}).pipe(
+      concatMap(file => openDialog$(file))
+    ).subscribe( () => { this.refreshFiles() } )
   }
 
+/*
   updateFiles(files: MyFile[]) {
     this.controller.updateFiles$(files)
       .subscribe(response => this.refreshFiles());
   }
 
-  /*
 
   updateFilesObserver(filesId? : string[]) {
     // Have to create a new array in order to push it on view

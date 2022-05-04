@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ text.title }}</h5>
+    <button type="button" 
+      class="btn-close" 
+      aria-label="Close"
+      (click)="dismiss()" 
+    ></button>
+</div>
+<div  class="modal-body">
+	<p>{{ text.subtitle }}</p>
+	<div *ngFor="let select of text.selections | keyvalue"
+		class="form-check"
+	>
+		<input class="form-check-input" 
+			type="radio" 
+			name="flexRadioDefault" 
+			[checked]="dialog.selected == select.key"
+			[value]="select.key"
+			[(ngModel)]="dialog.selected"
+		>
+		<label class="form-check-label" 
+			(click)="dialog.selected = select.key"
+		>
+			{{select.value}}
+		</label>
+  </div>
+</div>
+	<p></p>
+<div class="modal-footer">
+	<button type="button" class="btn btn-secondary"  (click)="dismiss()">Close</button>
+	<button type="button" class="btn btn-primary" (click)="close()">Save changes</button>
+</div>
+  

@@ -87,6 +87,20 @@ export class MyFileList {
   getFiles(folderId: string) : MyFile[] {
     return this.get(folderId)!;
   }
+
+  getFilesByIds(fileIds: string[]) : MyFile[] {
+    const files: MyFile[] = [];
+    fileIds.forEach(id => {
+      files.push(this.getFile(id))
+    });
+    return files;
+  }
+
+  getFilesByNames(folderId:string, names: string[]) {
+    return this.get(folderId)!.filter(
+      file => names.some(name => name == file.name)
+    )
+  }
 /*
   getCurrentFiles(filesId? : string[]): MyFile[] {
     if (filesId != undefined) {
@@ -113,7 +127,7 @@ export class MyFileList {
 
   /* hasSameName(fileName: string,  files: MyFile[]) {
     return files.some(file => file.name == fileName  );
-  } */
+  } 
 
   moveFiles(filesId: string[], targetFolderId: string) {
     const filesTarget: MyFile[] = this.get(targetFolderId)!;
@@ -129,7 +143,7 @@ export class MyFileList {
       });
     }
   }
-
+*/
   set(folderId: string, files:MyFile[]) : void {
     this.mapFiles.set(folderId, files);
   }
@@ -139,20 +153,19 @@ export class MyFileList {
   }
 */
  
-
-  private sortByFolderASC(folderId: string): void {
-    this.get(folderId)!.sort((a,b) => {
+  sortByNameASC(files: MyFile[]) {
+    files.sort((a,b) => {
       return Number(b.isFolder) - Number(a.isFolder);
     });
-  }
-
-  sortbyNameASC(folderId: string): void {
-    this.sortByFolderASC(folderId);
-    this.get(folderId)!.sort((a,b) => {
+    files.sort((a,b) => {
       if (a.isFolder != b.isFolder) return 0;
       return a.name.localeCompare(b.name, 
         undefined, {numeric: true, sensitivity: 'base'});
     });
+  }
+
+  sortDriveByNameASC(folderId: string): void {
+    this.sortByNameASC(this.get(folderId)!)
   }
 
   updateFiles(files: MyFile[]) {

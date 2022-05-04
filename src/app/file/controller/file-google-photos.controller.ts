@@ -2,48 +2,57 @@ import { Injectable } from '@angular/core';
 
 import { MyFile, MyFolder } from '../model/my-file'
 import { Observable } from 'rxjs'
-import { MyFileController } from '../model/my-file-controller';
+import { MyFileController, MyFileQuery } from '../model/my-file-controller';
 import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
-
-
-
 
 
 @Injectable()
 export class FileGooglePhotosController implements MyFileController{
   fileList: MyFileList;
-  
   root: MyFolder = {id: "root",  name : "Home", parentId: "rootParent", isFolder:true};
+  currentId: string = this.root.id;
 
   constructor() { 
     this.fileList = new MyFileList();
     this.root = this.fileList.createFolder(this.root);
     
       //fileList.clear();
-      this.fileList.createFolder({id:v4(), name: 'Folder _AA', parentId: this.root.id }); 
-      this.fileList.createFolder({id:v4(), name: 'Folder BB', parentId: this.root.id });
-      this.fileList.createFile({id:v4(), name: 'File ABC', parentId: this.root.id });
+    this.fileList.createFolder({id:v4(), name: 'Folder _AA', parentId: this.root.id }); 
+    this.fileList.createFolder({id:v4(), name: 'Folder BB', parentId: this.root.id });
+    this.fileList.createFile({id:v4(), name: 'File ABC', parentId: this.root.id });
   }
 
   getRootFolder(): MyFolder {
-   /* return new Observable<MyFolder> (obs => {
-      obs.next(this.rootFolder);
-    });*/
     return this.root;
   }
 
-  getFile$(fileId: string): Observable<MyFile> {
-    throw new Error('Method not implemented.');
+  getFile$(q: MyFileQuery): Observable<MyFile>  {
+    const get = (): MyFile | undefined => {
+      if (q.fileId) return this.fileList.getFile(q.fileId)
+      return undefined;
+    }
+    return this.observable(get());
   }
 
-  getFiles$(folderId?: string) {
-    const id = folderId ? folderId : this.root.id;
-    this.fileList.sortbyNameASC(id);
-    return new Observable<MyFile[]> (obs => {
-      obs.next([...this.fileList.getFiles(id)])
-    });
-    
+  getFiles$(q: MyFileQuery): Observable<MyFile[]> {
+    const get = (): MyFile[]  => {
+      let files: MyFile[] = [];
+      if (q.driveId && q.names) {
+        files = this.fileList.getFilesByNames(q.driveId, q.names)
+      } else if (q.driveId) {
+        //if (!q.driveId) q.driveId = this.root.id;
+        files = this.fileList.getFiles(q.driveId!)
+      } else if (q.filesId) {
+        files = this.fileList.getFilesByIds(q.filesId)
+      }
+      if (q.orderBy == "asc") {
+        this.fileList.sortByNameASC(files);
+      }
+      return files;
+    }
+    return this.observable(get());
+
   }
 
   addFolder$(name: string, parentId: string): Observable<void>  {
@@ -52,7 +61,7 @@ export class FileGooglePhotosController implements MyFileController{
     });
   }
 
-  deleteFiles$(filesId: string[]): Observable<void> {
+  deleteFile$(fileId: string): Observable<void> {
     throw new Error('Method not implemented.');
   }
 
@@ -60,10 +69,16 @@ export class FileGooglePhotosController implements MyFileController{
     throw new Error('Method not implemented.');
   }
 
-  updateFiles$(files: MyFile[]): Observable<void>  {
+  updateFile$(q:MyFileQuery): Observable<void> {
     throw new Error('Method not implemented.');
   }
 
+  observable(request:any) {
+    return new Observable<any> (observer => {
+      observer.next(request);
+      observer.complete();
+    });
+  }
   
 
 }

@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MyFile, MyFolder } from '../model/my-file'
-import { BehaviorSubject, Observable } from 'rxjs'
-import { MyFileController } from '../model/my-file-controller';
-import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs'
+import { MyFileController, MyFileQuery } from '../model/my-file-controller';
 import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
 
@@ -16,6 +15,8 @@ export class FileLocalController implements MyFileController {
     parentId: "rootParent",
     isFolder: true
   };
+
+  currentId: string = this.root.id;
 
   constructor() { 
     this.fileList = new MyFileList();
@@ -37,6 +38,11 @@ export class FileLocalController implements MyFileController {
       }
 
   }
+  
+  
+  getCurrentFiles$(): Observable<MyFile[]> {
+    throw new Error('Method not implemented.');
+  }
 
   addFolder$(name: string, parentId: string): Observable<void> {
     return this.observable(
@@ -47,39 +53,74 @@ export class FileLocalController implements MyFileController {
     //this.fileList.sortbyNameASC(parentId);
   }
 
-  deleteFiles$(filesId: string[]): Observable<void> {
-    return this.observable(this.fileList.deleteFiles(filesId))
+  deleteFile$(fileId: string): Observable<void> {
+    return this.observable(this.fileList.deleteFile(fileId))
   }
 
-  getFile$(fileId: string): Observable<MyFile> {
-    return this.observable(this.fileList.getFile(fileId));
+  getFile$(q: MyFileQuery): Observable<MyFile>  {
+    const get = (): MyFile | undefined => {
+      if (q.fileId) return this.fileList.getFile(q.fileId)
+      return undefined;
+    }
+    return this.observable(get());
   }
 
-  getFiles$(folderId?: string): Observable<MyFile[]> {
-    return new Observable<MyFile[]> (obs => {
-      if (!folderId) folderId = this.root.id;
-      this.fileList.sortbyNameASC(folderId);
-      obs.next(this.fileList.getFiles(folderId!));
-    });
+  getFiles$(q: MyFileQuery): Observable<MyFile[]> {
+    const get = (): MyFile[]  => {
+      let files: MyFile[] = [];
+      if (q.driveId && q.names) {
+        files = this.fileList.getFilesByNames(q.driveId, q.names)
+      } else if (q.driveId) {
+        //if (!q.driveId) q.driveId = this.root.id;
+        files = this.fileList.getFiles(q.driveId!)
+      } else if (q.filesId) {
+        files = this.fileList.getFilesByIds(q.filesId)
+      }
+      if (q.orderBy == "asc") {
+        this.fileList.sortByNameASC(files);
+      }
+      return files;
+    }
+    return this.observable(get());
+
   }
+
+/*getFilesByIds$(fileIds: string[]) {
+    return this.observable(this.fileList.getFilesByIds(fileIds));
+  }
+
+  getFilesByNames$(folderId: string, names: string[]) {
+    return this.observable( this.fileList.getFilesByNames(folderId, names));
+  }*/
 
   getRootFolder(): MyFolder {
     return this.root;
   }
 
+  /*
   moveFiles$(filesId: string[], targetFolderId: string ): Observable<void>  {
     return this.observable(
       this.fileList.moveFiles(filesId, targetFolderId)
     );
   }
+  */
 
-  updateFiles$(files: MyFile[]): Observable<void> {
-    return this.observable(() => {});
+  updateFile$(q:MyFileQuery): Observable<void> {
+    const update = () => {
+      const file = this.fileList.getFile(q.fileId!);
+      const clone: MyFile = Object.assign({}, file);
+      if (q.name) clone.name = q.name;
+      if (q.targetId) clone.parentId = q.targetId;
+      this.fileList.deleteFile(q.fileId!);
+      this.fileList.add(clone);
+    }
+    return this.observable(update());
   }
 
   observable(request:any) {
     return new Observable<any> (observer => {
       observer.next(request);
+      observer.complete();
     });
   }
 

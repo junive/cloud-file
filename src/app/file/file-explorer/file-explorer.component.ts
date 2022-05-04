@@ -1,11 +1,10 @@
-import { Component, Input, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core'
-import { MyDialogInput, MyDialogSelect } from '../../modal/_model/my-modal';
+import { Component, Input, HostListener } from '@angular/core'
 import { MySvgAsset } from 'src/assets/svg';
 import { MyFileConfig } from '../model/my-file-config';
 import { FileHelper } from '../file.helper';
 import { FileExplorerAbstract } from './file-explorer.abstract';
 import { MyFileController } from '../model/my-file-controller';
-import { ModalService } from 'src/app/modal/modal.service';
+import { DialogService } from 'src/app/dialog/dialog.service';
 
 @Component({
   selector: "my-file-explorer",
@@ -31,7 +30,7 @@ export class FileExplorerComponent extends FileExplorerAbstract {
 
   constructor(
     helper: FileHelper, 
-    modalService: ModalService,
+    modalService: DialogService,
     //cdRef: ChangeDetectorRef
   ) { 
     super(helper, modalService);
@@ -55,10 +54,10 @@ export class FileExplorerComponent extends FileExplorerAbstract {
   }
 
   addFolderEmit() {
-    const dialog: MyDialogInput = {
+    /*const dialog: MyDialogNaming = {
       title: "Add Folder",
-    }
-    super.addFolder(dialog);
+    }*/
+    super.addFolder();
   }
 
   deleteFileEmit(): void {
@@ -93,25 +92,16 @@ export class FileExplorerComponent extends FileExplorerAbstract {
 
   moveFilesEmit(targetId: string) {
     if (this.selectedIds.length == 0) return;
-    const dialog = <MyDialogSelect> {
-      title: "Imports options",
-      subtitle: "One or more elements already exist",
-      selection: new Map<string,string>([
-        ["replace", "Replace Existing files"],
-        ["keep", "Keep all files"]
-      ]),
-      selected: "replace"
-    }
-    super.moveFiles(dialog, [...this.selectedIds], targetId)
+    super.moveFiles([...this.selectedIds], targetId)
   }
 
   renameFileEmit() {
     if (this.selectedIds.length == 0) return;
-    const dialog: MyDialogInput =  {
+   /* const dialog: MyDialogNaming =  {
      // id: this.selectedIds[0], 
       title: "Rename the file",
       name: this.getFile(this.selectedIds[0])!.name
-    }
-    super.renameFile(dialog, this.selectedIds[0] );
+    }*/
+    super.renameFile(this.selectedIds[0]);
   }
 }
