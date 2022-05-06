@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FileModule } from './file/file.module';
 import { DialogService } from './dialog/dialog.service';
 import { DialogModule } from './dialog/dialog.module';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { DialogModule } from './dialog/dialog.module';
   imports: [
     BrowserModule,
     FileModule,
-    DialogModule
+    DialogModule,
+    NgbModule
   ],
   providers: [
     DialogService,

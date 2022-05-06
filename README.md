@@ -1,6 +1,5 @@
 # Install package 
 
-random id : npm i --save-dev @types/uuid (OR `npm install --save uuid`)
 bootstrap : `ng add @ng-bootstrap/ng-bootstrap`
 cdk (for scrolling) : `ng add @angular/cdk`
 
