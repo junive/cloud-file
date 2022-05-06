@@ -33,7 +33,6 @@ export class FileExplorerComponent extends FileExplorerAbstract {
   private timeStartA:any; 
 
   ngOnInit() { 
-   
     this.timeStartA = Date.now();
     if (this.config.initFiles) super.initFiles();
   }
@@ -49,9 +48,6 @@ export class FileExplorerComponent extends FileExplorerAbstract {
   }
 
   addFolderEmit() {
-    /*const dialog: MyDialogNaming = {
-      title: "Add Folder",
-    }*/
     super.addFolder();
   }
 

@@ -8,7 +8,7 @@
   <div class="modal-body">
     <my-input-text 
       [form]="myform"
-      [controlName]="'myinput'"
+      [control]="mycontrol"
       [name]="dialog.name!"
       [autofocus]="true"
       [validator]="{
@@ -24,7 +24,7 @@
   <my-dialog-footer
     (dismissEvent)="dismiss()"
     (closeEvent)="save()"
-    [disableSave]="!myform.valid"
+    [disableSave]="myform.valid == null ? false : !myform.valid"
   ></my-dialog-footer>
   
 </form>

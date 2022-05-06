@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { MyFile, MyFilesMove } from "./model/my-file";
-import { MyFileQuery } from "./model/my-file-service";
+import { MyFileUpdateQuery } from "./model/my-file-service";
 
 @Injectable()
 export class FileHelper {
@@ -60,7 +60,7 @@ export class FileHelper {
       query.targetId = move.targetId;
       queries.push(query);
     }
-    return <MyFileQuery[]> queries;
+    return <MyFileUpdateQuery[]> queries;
   }
 
   updateName(name: string) {

@@ -68,15 +68,9 @@ export class DialogService {
   }*/
 
   openSelectingMove$() {
-    return this.openDialog$( DialogSelectingMoveComponent,
-      <MyDialogSelecting> { selected: MyDialogEnum.REPLACE }
-    ); 
+    return this.openDialog$( DialogSelectingMoveComponent, {}); 
   }
-/*
-  setFileService(service: FileService) {
-    this.validator = new DialogValidator(service);
-  }
-  */
+
 
 
 }

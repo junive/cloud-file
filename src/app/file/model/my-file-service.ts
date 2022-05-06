@@ -2,21 +2,31 @@ import { Observable } from "rxjs";
 import { MyFile, MyFolder } from "./my-file";
 
 export interface MyFileService {
-    create$(q: MyFileQuery): Observable<void>;
+    create$(q: MyFileCreateQuery): Observable<void>;
     deleteFile$(fileId: string): Observable<void>;
-    getFile$(q: MyFileQuery): Observable<MyFile>;
-    getFiles$(q: MyFileQuery): Observable<MyFile[]>;
+    getFile$(q: MyFileGetQuery): Observable<MyFile>;
+    getFiles$(q: MyFileGetQuery): Observable<MyFile[]>;
     getRootFolder(): MyFolder;
-    updateFile$(q:MyFileQuery): Observable<void>;
+    updateFile$(q: MyFileUpdateQuery): Observable<void>;
 }
 
-export interface MyFileQuery {
+export interface MyFileQuery { }
+
+export interface MyFileCreateQuery extends MyFileQuery {
     driveId?: string;
-    fileId?:string;
-    filesId?: string[];
     name?:string;
+}
+
+export interface MyFileGetQuery extends MyFileQuery {
+    fileId?: string;
+    driveId?: string;
+    filesId?: string[];
     names?: string[];
     orderBy?: string;
-    parentId?: string;
+}
+
+export interface MyFileUpdateQuery extends MyFileQuery {
+    fileId?:string;
+    name?:string;
     targetId?: string;
 }

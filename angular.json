@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "junive-cloud-file": {
+    "junive-cloud": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:application": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/junive-cloud-file",
+            "outputPath": "dist/junive-cloud",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -29,11 +29,8 @@
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
-             
             ],
-            "scripts": [
-             
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -72,10 +69,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "junive-cloud-file:build:production"
+              "browserTarget": "junive-cloud:build:production"
             },
             "development": {
-              "browserTarget": "junive-cloud-file:build:development"
+              "browserTarget": "junive-cloud:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +80,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "junive-cloud-file:build"
+            "browserTarget": "junive-cloud:build"
           }
         },
         "test": {
@@ -106,5 +103,5 @@
       }
     }
   },
-  "defaultProject": "junive-cloud-file"
+  "defaultProject": "junive-cloud"
 }

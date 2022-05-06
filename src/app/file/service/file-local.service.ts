@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MyFile, MyFolder } from '../model/my-file'
 import { Observable } from 'rxjs'
-import { MyFileService, MyFileQuery } from '../model/my-file-service';
+import { MyFileService, MyFileCreateQuery, MyFileUpdateQuery, MyFileGetQuery } from '../model/my-file-service';
 import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
 import { FileService } from './file.service';
@@ -40,10 +40,10 @@ export class FileLocalService extends FileService implements MyFileService {
   }
   
   
-  override create$(q: MyFileQuery): Observable<void> {
+  override create$(q: MyFileCreateQuery): Observable<void> {
     return this.observable(
       this.fileList.createFolder({
-        id:v4(), name: q.name!, parentId: q.parentId!
+        id:v4(), name: q.name!, parentId: q.driveId!
       })
     );
     //this.fileList.sortbyNameASC(parentId);
@@ -53,7 +53,7 @@ export class FileLocalService extends FileService implements MyFileService {
     return this.observable(this.fileList.deleteFile(fileId, true))
   }
 
-  override getFile$(q: MyFileQuery): Observable<MyFile>  {
+  override getFile$(q: MyFileGetQuery): Observable<MyFile>  {
     const get = (): MyFile | undefined => {
       if (q.fileId) return this.fileList.getFile(q.fileId)
       return undefined;
@@ -61,7 +61,7 @@ export class FileLocalService extends FileService implements MyFileService {
     return this.observable(get());
   }
 
-  override getFiles$(q: MyFileQuery): Observable<MyFile[]> {
+  override getFiles$(q: MyFileGetQuery): Observable<MyFile[]> {
     const get = (): MyFile[]  => {
       let files: MyFile[] = [];
       if (q.driveId && q.names) {
@@ -101,7 +101,7 @@ export class FileLocalService extends FileService implements MyFileService {
   }
   */
 
-  override updateFile$(q:MyFileQuery): Observable<void> {
+  override updateFile$(q: MyFileUpdateQuery): Observable<void> {
     const update = () => {
       const file = this.fileList.getFile(q.fileId!);
       if (q.name) file.name = q.name;

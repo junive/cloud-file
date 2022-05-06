@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest, concatMap, EMPTY, Observable, Subject, tap } from "rxjs";
+import { BehaviorSubject, concatMap, EMPTY, Subject, tap } from "rxjs";
 import { AppModule } from "src/app/app.module";
 import { DialogService } from "src/app/dialog/dialog.service";
 import { MyDialogEnum, MyDialogNaming, MyDialogSelecting } from "src/app/dialog/model/my-dialog";
@@ -41,9 +41,8 @@ export class FileExplorerAbstract {
     const dialog = { fileService: this.service }
     this.dialogService.openCreateFolder$(dialog).pipe(
       concatMap( (dialog: MyDialogNaming) => {
-        return this.service.create$({ 
-          name: dialog.name, parentId: targetId
-        });
+        const query = { name: dialog.name, driveId: targetId }
+        return this.service.create$(query);
       })
     ).subscribe( () => this.refreshFiles() )
   }
@@ -118,8 +117,8 @@ export class FileExplorerAbstract {
         return this.dialogService.openRenameFile$(dialog);
       }),
       concatMap( (dialog: MyDialogNaming) => {
-        const q = { fileId: fileId, name: dialog.name };
-        return this.service.updateFile$(q);
+        const query = { fileId: fileId, name: dialog.name };
+        return this.service.updateFile$(query);
       })
     ).subscribe( () => { this.refreshFiles() } )
   }

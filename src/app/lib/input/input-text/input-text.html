@@ -2,18 +2,18 @@
 <div [formGroup]="form" >
   <input type="text"
     class="form-control" 
-    [formControlName]="controlName"
+    [formControl]="control"
     [attr.ngbAutofocus]="autofocus"
     [attr.autofocus]="autofocus"
   />
 
   <p></p>
   <div style="height: 3rem;" >
-    <div *ngIf="mycontrol.errors 
-      && mycontrol.dirty 
-      && mycontrol.value != name"
+    <div *ngIf="control.errors 
+      && control.dirty 
+      && control.value != name"
     >
-      <div *ngFor="let error of mycontrol.errors | keyvalue"
+      <div *ngFor="let error of control.errors | keyvalue"
         class="alert alert-danger"
         role="alert">
         <span *ngIf="error.key == 'required'">

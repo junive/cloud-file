@@ -1,15 +1,29 @@
 import { Component, HostListener } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { tap } from 'rxjs';
 import { MyDialogNaming } from '../model/my-dialog';
 
 @Component({ template:""})
 export class DialogNamingComponent {
 
   title: string = "No Naming Title"
-  dialog: MyDialogNaming = {};
   myform: FormGroup = new FormGroup({});
+  mycontrol: FormControl = new FormControl();  
+  dialog: MyDialogNaming = {};
+  
+  constructor(
+   //  fb: FormBuilder, 
+  ) {  }
 
-  constructor(public fb: FormBuilder, ) {  }
+  ngOnInit() {
+    this.myform.addControl("", this.mycontrol);
+    /*this.myform = this.fb.group({
+      "mycontrol": [null] ,
+    })*/
+
+  }
+
+
 
   @HostListener('document:keydown.enter', ['$event']) 
   onEnterHandler(event: KeyboardEvent) {
@@ -18,17 +32,12 @@ export class DialogNamingComponent {
 
   setDialog(dialog: MyDialogNaming) {
     this.dialog = dialog;
-    this.myform = this.fb.group({
-      "myinput": [null] 
-    })
-    this.myform.setValue({
-      "myinput": this.dialog.name ? this.dialog.name : ""
-    })
+    this.mycontrol.setValue(this.dialog.name ?? "")
   }
   
   save() {
     if (!this.myform.valid) return;
-    this.dialog!.name = this.myform.controls['myinput'].value;
+    this.dialog.name = this.mycontrol.value;
     this.close();
   }
 

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { combineLatest, Observable } from "rxjs";
 import { MyFile, MyFolder } from "../model/my-file";
-import { MyFileService, MyFileQuery } from "../model/my-file-service";
+import { MyFileService, MyFileCreateQuery, MyFileGetQuery, MyFileUpdateQuery } from "../model/my-file-service";
 
 @Injectable()
 export class FileService implements MyFileService {
@@ -9,7 +9,7 @@ export class FileService implements MyFileService {
   
   constructor() { }
 
-  create$(q: MyFileQuery): Observable<void> {
+  create$(q: MyFileCreateQuery): Observable<void> {
     throw new Error('FileService.ts : Method not implemented.');
   }
 
@@ -23,16 +23,16 @@ export class FileService implements MyFileService {
     return combineLatest(deletes$);
   }
 
-  getCurrentFiles$(q?: MyFileQuery): Observable<MyFile[]> {
+  getCurrentFiles$(q?: MyFileGetQuery): Observable<MyFile[]> {
     const query =  {...{ driveId: this.currentId }, ...q! }
     return this.getFiles$(query);
   }
   
-  getFile$(q: MyFileQuery): Observable<MyFile> {
+  getFile$(q: MyFileGetQuery): Observable<MyFile> {
     throw new Error('FileService.ts : Method not implemented.');
   }
 
-  getFiles$(q: MyFileQuery): Observable<MyFile[]> {
+  getFiles$(q: MyFileGetQuery): Observable<MyFile[]> {
     throw new Error('FileService.ts : Method not implemented.');
   }
 
@@ -40,7 +40,7 @@ export class FileService implements MyFileService {
     throw new Error('FileService.ts : Method not implemented.');
   }
 
-  moveFiles$(queries: MyFileQuery[], deletesId: string[]) {
+  moveFiles$(queries: MyFileUpdateQuery[], deletesId: string[]) {
     return combineLatest([
       this.updateFiles$(queries),
       this.deleteFiles$(deletesId) 
@@ -54,11 +54,11 @@ export class FileService implements MyFileService {
     });
   }
 
-  updateFile$(q: MyFileQuery): Observable<void> {
+  updateFile$(q: MyFileUpdateQuery): Observable<void> {
     throw new Error('FileService.ts : Method not implemented.');
   }
 
-  updateFiles$(queries: MyFileQuery[]): Observable<void[]> {
+  updateFiles$(queries: MyFileUpdateQuery[]): Observable<void[]> {
     const updates$: Observable<void>[] = [];
     queries.forEach(query => updates$.push(this.updateFile$(query)));
     return combineLatest(updates$);

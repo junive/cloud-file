@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AbstractControl, AsyncValidatorFn,  FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { distinctUntilChanged, EMPTY, map, Observable, of, switchMap, take, timer } from 'rxjs';
 import { MyFile } from 'src/app/file/model/my-file';
@@ -10,37 +10,28 @@ import { MyInputText } from '../model/my-input-text';
   styleUrls: ['../input.css']
 })
 export class InputTextComponent{
-  //@Input() mycontrol: FormControl = new FormControl();
+  @Input() control: FormControl = new FormControl();
   @Input() form: FormGroup = new FormGroup({});
   @Input() controlName: string = "";
   @Input() name: string = "";
   @Input() autofocus: boolean = false;
   @Input() validator: MyInputText = {};
 
-
   constructor(  ) { }
   
-  ngOnInit(): void {
-   //this.formGroup = <FormGroup>this.controlContainer.control;
-   
-    //console.log("Input", this.form);
-    /*this.control = new FormControl("", {
-      validators: [Validators.required],
-      updateOn: 'change' 
-    });*/
-  
-  }
+  ngOnInit(): void { }
 
+/*
   get mycontrol() {
     return this.form.controls[this.controlName] as FormControl;
   }
-
+*/
   ngAfterViewInit() {
     if (this.validator.required) {
-      this.mycontrol.addValidators([Validators.required])
+      this.control.addValidators([Validators.required])
     }
     if (this.validator.file!.hasTwin) {
-      this.mycontrol.addAsyncValidators( [ this.checkFileNames() ] )
+      this.control.addAsyncValidators( [ this.checkFileNames() ] )
     }
   }
 
