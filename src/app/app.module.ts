@@ -1,29 +1,29 @@
-import { NgModule } from '@angular/core';
+import { Injector, NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
-import { FileLocalController } from './file/controller/file-local.controller';
-import { FileGooglePhotosController } from './file/controller/file-google-photos.controller';
 import { BrowserModule } from '@angular/platform-browser';
-import { FileManagerModule } from './file/file.module';
+import { FileModule } from './file/file.module';
 import { DialogService } from './dialog/dialog.service';
+import { DialogModule } from './dialog/dialog.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    
   ],
   imports: [
     BrowserModule,
-    FileManagerModule
+    FileModule,
+    DialogModule
   ],
   providers: [
-    FileLocalController,
-    FileGooglePhotosController,
     DialogService,
   ],
   bootstrap: [AppComponent],
   
-
-
 })
-export class AppModule { }
+export class AppModule {
+  static injector: Injector;
+  constructor(injector: Injector) {
+      AppModule.injector = injector;
+  } 
+}
  

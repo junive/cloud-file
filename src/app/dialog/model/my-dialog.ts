@@ -1,19 +1,21 @@
 import { Observable } from "rxjs";
+import { FileService } from "src/app/file/service/file.service";
 import { MyFile } from "src/app/file/model/my-file";
-import { DialogValidator } from "../dialog.validator";
-import { MyDialogSelectingType, MyDialogType } from "./my-dialog-type";
 
-export interface MyDialog {
-    type: MyDialogType
+
+export enum MyDialogEnum  {
+    KEEP, REPLACE // Selecting
 }
+
+export interface MyDialog { }
 
 export interface MyDialogNaming extends MyDialog {
     name?: string
-    validator?: DialogValidator
+    fileService?: FileService
 }
 
 export interface MyDialogSelecting extends MyDialog {
-    selected?: MyDialogSelectingType
+    selected?: MyDialogEnum
 }
 
 

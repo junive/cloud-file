@@ -1,6 +1,4 @@
-import { Component, Injector, TemplateRef, ViewChild } from '@angular/core';
-import { FileLocalController } from './file/controller/file-local.controller';
-import { FileGooglePhotosController } from './file/controller/file-google-photos.controller';
+import { Component, Injector } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -14,9 +12,10 @@ export class AppComponent {
   
   controllers: any = {}
 
+
   constructor( private injector: Injector ) {
-    this.controllers.local = this.injector.get(FileLocalController);
-    this.controllers.gphoto = this.injector.get(FileGooglePhotosController);
+    //this.controllers.local = this.injector.get(FileLocalController);
+    //this.controllers.gphoto = this.injector.get(FileGooglePhotosController);
   }
 
   ngOnInit() {

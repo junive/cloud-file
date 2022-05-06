@@ -1,17 +1,15 @@
 Hello World
-<my-file-explorer #fileLocal
-    [fileController]="controllers.local"
+<my-explorer-local #fileLocal
     [config]="{
         initFiles: true
     }"
 > 
-</my-file-explorer>
+</my-explorer-local>
 
-<my-file-explorer #fileGPhotos
-    [fileController]="controllers.gphoto"
+<my-explorer-google-photos #fileGPhotos
     [config]="{
         initFiles: true,
         hideNavFolder: true
     }"
 >
-</my-file-explorer>
+</my-explorer-google-photos> 

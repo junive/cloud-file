@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
-import { MyFile } from "./model/my-file";
+import { MyFile, MyFilesMove } from "./model/my-file";
+import { MyFileQuery } from "./model/my-file-service";
 
 @Injectable()
 export class FileHelper {
@@ -27,26 +28,27 @@ export class FileHelper {
     return files.some(file => file.name == fileName  );
   }
 
-  hasTwin(files1: MyFile[], files2: MyFile[]) {
-    return files2.some( file2 => 
-      this.hasName(file2.name, files1)
+  hasTwin(move:MyFilesMove) {
+    return move.targets.some( file => 
+      this.hasName(file.name, move.files)
     )
   }
 
-  filterTwins(files1: MyFile[], files2: MyFile[]) {
-    return files2.filter( file2 => 
-      this.hasName(file2.name, files1)
-    )
+  filterTwinsId(move: MyFilesMove) {
+    return move.targets.filter( file =>
+      this.hasName(file.name, move.files)
+    ).map(file => file.id);
   }
   
-  getMoveQ(files1: MyFile[], targetId:string, files2?: MyFile[]) {
+
+  getMoveQueries(move: MyFilesMove, rename?: boolean) {
     const queries: any[] = [];
-    for(const file of files1) {
+    for (const file of move.files) {
       const query : any = {};
-      if (files2) {
+      if (rename) {
         let name = file.name;
         let safety = 0;
-        while (this.hasName(name, files2) && safety < 100) {
+        while (this.hasName(name, move.targets) && safety < 100) {
           name = this.updateName(name);
           safety++
         }
@@ -55,10 +57,10 @@ export class FileHelper {
       }
       query.fileId = file.id;
       query.parentId = file.parentId;
-      query.targetId = targetId;
+      query.targetId = move.targetId;
       queries.push(query);
     }
-    return queries;
+    return <MyFileQuery[]> queries;
   }
 
   updateName(name: string) {

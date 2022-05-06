@@ -1,74 +1,49 @@
 import { Component, HostListener } from '@angular/core';
-import { MyDialogNaming } from 'src/app/dialog/model/my-dialog';
-import { MyDialogComponent } from '../model/my-dialog-component';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MyDialogNamingType } from '../model/my-dialog-type';
-import { MyDialogNamingText } from '../model/my-dialog-text';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { MyDialogNaming } from '../model/my-dialog';
 
-@Component({
-  selector: "my-simple-dialog",
-  templateUrl: './dialog-naming.html',
-  styleUrls: ['./dialog-naming.css']
-})
+@Component({ template:""})
+export class DialogNamingComponent {
 
-export class DialogNamingComponent implements MyDialogComponent {
-  dialog?: MyDialogNaming;
-  text!: MyDialogNamingText
+  title: string = "No Naming Title"
+  dialog: MyDialogNaming = {};
+  myform: FormGroup = new FormGroup({});
 
-  inputControl: FormControl = new FormControl("", {
-    validators: [Validators.required],
-    updateOn: 'change' 
-  });
-
-  form:FormGroup = this.fb.group({
-    myinput: this.inputControl
-  });
-  
-  constructor(private fb: FormBuilder, ) {  }
-
-  ngAfterViewInit() { }
-
-  ngOnInit() { }
+  constructor(public fb: FormBuilder, ) {  }
 
   @HostListener('document:keydown.enter', ['$event']) 
   onEnterHandler(event: KeyboardEvent) {
     return this.save();
   }
-  
-  get myinput() { 
-    return this.form.controls['myinput'];
-  }
 
   setDialog(dialog: MyDialogNaming) {
     this.dialog = dialog;
-    this.inputControl.setAsyncValidators(
-      this.dialog.validator!.checkFileNames()
-    );
-
-    this.setText()
-  }
-
-  setText() {
-    this.form.setValue({
-      myinput: this.dialog!.name ? this.dialog!.name : ""
+    this.myform = this.fb.group({
+      "myinput": [null] 
     })
-    if (this.dialog!.type == MyDialogNamingType.ADD) {
-      this.text = { title: "Add new folder" }
-    } 
-    if (this.dialog!.type == MyDialogNamingType.RENAME) {
-      this.text = { title: "Rename the file" }
-    }
+    this.myform.setValue({
+      "myinput": this.dialog.name ? this.dialog.name : ""
+    })
   }
-
+  
   save() {
-    if (!this.form.valid) return;
-    this.dialog!.name = this.myinput.value
+    if (!this.myform.valid) return;
+    this.dialog!.name = this.myform.controls['myinput'].value;
     this.close();
   }
 
-  dismiss() { }
+  close(): void { }
+  dismiss(): void { }
 
-  close() { }
+
+
+/*
+  get myinput() {
+    return this.myform.controls['myinput'] as FormControl;
+  }
+  
+
+ 
   
   /*
   getDialog(): MyDialogSimple {
@@ -81,3 +56,4 @@ export class DialogNamingComponent implements MyDialogComponent {
 
 
 }
+

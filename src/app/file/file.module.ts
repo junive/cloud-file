@@ -1,28 +1,39 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DialogModule } from '../dialog/dialog.module';
+import { Injector, NgModule } from '@angular/core';
+import { FileGooglePhotosService } from './service/file-google-photos.service';
+import { FileLocalService } from './service/file-local.service';
+import { FileGooglePhotosComponent, FileLocalComponent } from './file-explorer/file-explorer.childreen';
 import { FileExplorerComponent } from './file-explorer/file-explorer.component';
 import { FileHelper } from './file.helper';
 
 @NgModule({
   declarations: [
-    FileExplorerComponent
+    FileExplorerComponent,
+    FileLocalComponent,
+    FileGooglePhotosComponent
   ],
   imports: [
     CommonModule,
     ScrollingModule,
-    FormsModule,
-    ReactiveFormsModule, 
-    DialogModule
+   // FormsModule,
+   // ReactiveFormsModule,
+    
   ],
   providers: [
-    FileHelper
+    FileHelper,
+    FileLocalService,
+    FileGooglePhotosService
   ],
   exports: [
-    FileExplorerComponent
+    FileLocalComponent,
+    FileGooglePhotosComponent,
   ],
 })
 
-export class FileManagerModule { }
+export class FileModule {
+  static injector: Injector;
+  constructor(injector: Injector) {
+    FileModule.injector = injector;
+  } 
+ }

@@ -1,46 +1,30 @@
-<div class="modal-header">
-  <h5  class="modal-title">{{ text.title }}</h5>
-  <button type="button" 
-    class="btn-close"
-    aria-label="Close"
-    (click)="dismiss()"
-  ></button>
-</div>
-<form [formGroup]="form">
+<my-dialog-header 
+  (dismissEvent)="dismiss()"
+  [title]="title"
+></my-dialog-header>
+
+<form [formGroup]="myform">
+  
   <div class="modal-body">
-    <div>
-      <input type="text"
-        class="form-control" 
-        formControlName="myinput"
-        ngbAutofocus
-      />
-    </div>
-    <p></p>
-    <div style="height: 3rem;">
-      <div *ngIf="myinput.errors && form.dirty && myinput.value != dialog!.name">
-        <div *ngFor="let error of myinput.errors | keyvalue"
-          class="alert alert-danger"
-          role="alert">
-          <span *ngIf="error.key == 'required'">
-            Please Provide a name.
-          </span>
-          <span *ngIf="error.key == 'fileExist'">
-            Name already exists.
-          </span>
-        </div>
-      </div>
-    </div>
+    <my-input-text 
+      [form]="myform"
+      [controlName]="'myinput'"
+      [name]="dialog.name!"
+      [autofocus]="true"
+      [validator]="{
+        required: true,
+        file : {
+          service: dialog.fileService!,
+          hasTwin: true
+        }
+      }"
+    ></my-input-text>
   </div>
-  <div class="modal-footer">
-    <button type="button" 
-      class="btn btn-secondary"  
-      (click)="dismiss()">Close
-    </button>
-    <button type="button"
-      class="btn btn-primary"
-      [disabled]="!form.valid"
-      (click)="save();">
-      Save changes
-    </button>
-  </div>
+
+  <my-dialog-footer
+    (dismissEvent)="dismiss()"
+    (closeEvent)="save()"
+    [disableSave]="!myform.valid"
+  ></my-dialog-footer>
+  
 </form>

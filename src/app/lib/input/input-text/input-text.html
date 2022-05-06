@@ -1,0 +1,28 @@
+
+<div [formGroup]="form" >
+  <input type="text"
+    class="form-control" 
+    [formControlName]="controlName"
+    [attr.ngbAutofocus]="autofocus"
+    [attr.autofocus]="autofocus"
+  />
+
+  <p></p>
+  <div style="height: 3rem;" >
+    <div *ngIf="mycontrol.errors 
+      && mycontrol.dirty 
+      && mycontrol.value != name"
+    >
+      <div *ngFor="let error of mycontrol.errors | keyvalue"
+        class="alert alert-danger"
+        role="alert">
+        <span *ngIf="error.key == 'required'">
+          Please Provide a name.
+        </span>
+        <span *ngIf="error.key == 'fileExist'">
+          Name already exists.
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

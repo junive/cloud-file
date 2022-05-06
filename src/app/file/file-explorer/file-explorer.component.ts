@@ -1,19 +1,15 @@
 import { Component, Input, HostListener } from '@angular/core'
 import { MySvgAsset } from 'src/assets/svg';
 import { MyFileConfig } from '../model/my-file-config';
-import { FileHelper } from '../file.helper';
 import { FileExplorerAbstract } from './file-explorer.abstract';
-import { MyFileController } from '../model/my-file-controller';
-import { DialogService } from 'src/app/dialog/dialog.service';
+import { FileService } from '../service/file.service';
 
 @Component({
-  selector: "my-file-explorer",
-  templateUrl: './file-explorer.html',
-  styleUrls: ['./file-explorer.css'],
+  //selector: "my-file-explorer",
+  template: '',
+  //styleUrls: ['./file-explorer.css'],
   //changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-   // FileManagerPipe
-  ],
+  //providers: [  ],
 })
 
 export class FileExplorerComponent extends FileExplorerAbstract {
@@ -21,7 +17,6 @@ export class FileExplorerComponent extends FileExplorerAbstract {
   mysvg = MySvgAsset;
 
   @Input() config: MyFileConfig = {};
-  @Input() fileController!: MyFileController;
 
   menu: any = {
     context: { hide: true, top: 0, left: 0  },
@@ -29,18 +24,18 @@ export class FileExplorerComponent extends FileExplorerAbstract {
   }
 
   constructor(
-    helper: FileHelper, 
-    modalService: DialogService,
+    service: FileService
     //cdRef: ChangeDetectorRef
   ) { 
-    super(helper, modalService);
+    super(service);
   }
 
   private timeStartA:any; 
 
   ngOnInit() { 
+   
     this.timeStartA = Date.now();
-    if (this.config.initFiles) super.initFiles(this.fileController);
+    if (this.config.initFiles) super.initFiles();
   }
 
   ngAfterViewInit () { 
@@ -97,11 +92,7 @@ export class FileExplorerComponent extends FileExplorerAbstract {
 
   renameFileEmit() {
     if (this.selectedIds.length == 0) return;
-   /* const dialog: MyDialogNaming =  {
-     // id: this.selectedIds[0], 
-      title: "Rename the file",
-      name: this.getFile(this.selectedIds[0])!.name
-    }*/
     super.renameFile(this.selectedIds[0]);
   }
 }
+

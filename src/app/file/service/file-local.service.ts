@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MyFile, MyFolder } from '../model/my-file'
 import { Observable } from 'rxjs'
-import { MyFileController, MyFileQuery } from '../model/my-file-controller';
+import { MyFileService, MyFileQuery } from '../model/my-file-service';
 import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
+import { FileService } from './file.service';
 
 @Injectable()
-export class FileLocalController implements MyFileController {
+export class FileLocalService extends FileService implements MyFileService {
   fileList: MyFileList;
 
   root: MyFolder = <MyFolder> {
@@ -16,9 +17,8 @@ export class FileLocalController implements MyFileController {
     isFolder: true
   };
 
-  currentId: string = this.root.id;
-
   constructor() { 
+    super();
     this.fileList = new MyFileList();
     this.fileList.add(this.root);
     
@@ -40,24 +40,20 @@ export class FileLocalController implements MyFileController {
   }
   
   
-  getCurrentFiles$(): Observable<MyFile[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  addFolder$(name: string, parentId: string): Observable<void> {
+  override create$(q: MyFileQuery): Observable<void> {
     return this.observable(
       this.fileList.createFolder({
-        id:v4(), name: name, parentId: parentId
+        id:v4(), name: q.name!, parentId: q.parentId!
       })
     );
     //this.fileList.sortbyNameASC(parentId);
   }
 
-  deleteFile$(fileId: string): Observable<void> {
-    return this.observable(this.fileList.deleteFile(fileId))
+  override deleteFile$(fileId: string): Observable<void> {
+    return this.observable(this.fileList.deleteFile(fileId, true))
   }
 
-  getFile$(q: MyFileQuery): Observable<MyFile>  {
+  override getFile$(q: MyFileQuery): Observable<MyFile>  {
     const get = (): MyFile | undefined => {
       if (q.fileId) return this.fileList.getFile(q.fileId)
       return undefined;
@@ -65,7 +61,7 @@ export class FileLocalController implements MyFileController {
     return this.observable(get());
   }
 
-  getFiles$(q: MyFileQuery): Observable<MyFile[]> {
+  override getFiles$(q: MyFileQuery): Observable<MyFile[]> {
     const get = (): MyFile[]  => {
       let files: MyFile[] = [];
       if (q.driveId && q.names) {
@@ -93,7 +89,7 @@ export class FileLocalController implements MyFileController {
     return this.observable( this.fileList.getFilesByNames(folderId, names));
   }*/
 
-  getRootFolder(): MyFolder {
+  override getRootFolder(): MyFolder {
     return this.root;
   }
 
@@ -105,24 +101,15 @@ export class FileLocalController implements MyFileController {
   }
   */
 
-  updateFile$(q:MyFileQuery): Observable<void> {
+  override updateFile$(q:MyFileQuery): Observable<void> {
     const update = () => {
       const file = this.fileList.getFile(q.fileId!);
-      const clone: MyFile = Object.assign({}, file);
-      if (q.name) clone.name = q.name;
-      if (q.targetId) clone.parentId = q.targetId;
-      this.fileList.deleteFile(q.fileId!);
-      this.fileList.add(clone);
+      if (q.name) file.name = q.name;
+      if (q.targetId) this.fileList.moveFile(q.fileId!, q.targetId)
     }
     return this.observable(update());
   }
 
-  observable(request:any) {
-    return new Observable<any> (observer => {
-      observer.next(request);
-      observer.complete();
-    });
-  }
 
   
 

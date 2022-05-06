@@ -2,18 +2,19 @@ import { Injectable } from '@angular/core';
 
 import { MyFile, MyFolder } from '../model/my-file'
 import { Observable } from 'rxjs'
-import { MyFileController, MyFileQuery } from '../model/my-file-controller';
+import { MyFileService, MyFileQuery } from '../model/my-file-service';
 import { MyFileList } from './file-local.list';
 import { v4 } from 'uuid';
+import { FileService } from './file.service';
 
 
 @Injectable()
-export class FileGooglePhotosController implements MyFileController{
+export class FileGooglePhotosService extends FileService implements MyFileService{
   fileList: MyFileList;
   root: MyFolder = {id: "root",  name : "Home", parentId: "rootParent", isFolder:true};
-  currentId: string = this.root.id;
-
+  
   constructor() { 
+    super();
     this.fileList = new MyFileList();
     this.root = this.fileList.createFolder(this.root);
     
@@ -23,11 +24,11 @@ export class FileGooglePhotosController implements MyFileController{
     this.fileList.createFile({id:v4(), name: 'File ABC', parentId: this.root.id });
   }
 
-  getRootFolder(): MyFolder {
+  override getRootFolder(): MyFolder {
     return this.root;
   }
 
-  getFile$(q: MyFileQuery): Observable<MyFile>  {
+  override getFile$(q: MyFileQuery): Observable<MyFile>  {
     const get = (): MyFile | undefined => {
       if (q.fileId) return this.fileList.getFile(q.fileId)
       return undefined;
@@ -35,7 +36,7 @@ export class FileGooglePhotosController implements MyFileController{
     return this.observable(get());
   }
 
-  getFiles$(q: MyFileQuery): Observable<MyFile[]> {
+  override getFiles$(q: MyFileQuery): Observable<MyFile[]> {
     const get = (): MyFile[]  => {
       let files: MyFile[] = [];
       if (q.driveId && q.names) {
@@ -55,30 +56,20 @@ export class FileGooglePhotosController implements MyFileController{
 
   }
 
-  addFolder$(name: string, parentId: string): Observable<void>  {
-    return new Observable<void> (obs => {
-      this.fileList.createFolder({id:v4(), name: name, parentId: parentId} );
-    });
+  override create$(q: MyFileQuery): Observable<void> {
+    return this.observable(
+      this.fileList.createFolder({
+        id:v4(), name: q.name!, parentId: q.parentId!
+      })
+    );
   }
 
-  deleteFile$(fileId: string): Observable<void> {
+  override deleteFile$(fileId: string): Observable<void> {
     throw new Error('Method not implemented.');
   }
 
-  moveFiles$(filesId: string[], targetFolderId: string): Observable<void>  {
+  override updateFile$(q:MyFileQuery): Observable<void> {
     throw new Error('Method not implemented.');
   }
-
-  updateFile$(q:MyFileQuery): Observable<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  observable(request:any) {
-    return new Observable<any> (observer => {
-      observer.next(request);
-      observer.complete();
-    });
-  }
-  
 
 }

@@ -6,3 +6,9 @@ export interface MyFile {
 }
 
 export interface MyFolder extends MyFile { }
+
+export interface MyFilesMove {
+    files: MyFile[], 
+    targets: MyFile[], 
+    targetId: string
+}

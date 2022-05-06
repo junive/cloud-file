@@ -50,7 +50,7 @@ export class MyFileList {
     this.mapFiles.delete(folderId);
   }
 
-  deleteFile(fileId: string) {
+  deleteFile(fileId: string, cascade?:boolean) {
     const files = this.get(this.getFile(fileId).parentId);
     // Better to use this loop for speed reason
     for (let i=0; files && i < files.length; i++) {
@@ -61,11 +61,24 @@ export class MyFileList {
     };
   }
 
-  deleteFiles(filesId: string[]) {
-    for (let i=0; i < filesId.length; i++) {
-      this.deleteFile(filesId[i]);
-    }
+  moveFile(fileId: string, targetId:string) {
+    const files = this.get(this.getFile(fileId).parentId);
+    // Better to use this loop for speed reason
+    for (let i=0; files && i < files.length; i++) {
+      if (fileId != files[i].id) continue; // No Match
+      files[i].parentId = targetId;
+      this.add(files[i])
+      files.splice(i, 1);
+      break;
+    };
+    
   }
+
+  /* deleteFiles(filesId: string[], cascade?:boolean) {
+    for (let i=0; i < filesId.length; i++) {
+      this.deleteFile(filesId[i], cascade);
+    }
+  }*/
 
   get(folderId: string) {
     return this.mapFiles.get(folderId);
