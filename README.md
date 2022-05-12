@@ -3,6 +3,13 @@
 bootstrap : `ng add @ng-bootstrap/ng-bootstrap`
 cdk (for scrolling) : `ng add @angular/cdk`
 
+add the following to tsconfig.json "compilerOptions": 
+`
+    "paths" : {
+      "@myshared/*" : ["src/app/shared/*"]
+    }
+`
+
 
 # JuniveCloud
 

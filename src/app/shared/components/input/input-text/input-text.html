@@ -1,0 +1,27 @@
+<input #inputText
+  type="text"
+  class="form-control" 
+  [formControl]="control"
+  [attr.ngbAutofocus]="autofocus"
+  [attr.autofocus]="autofocus"
+  (ngModelChange)="positioningError(inputText)"
+/>
+
+<div *ngIf="control.errors 
+      && control.dirty 
+      && control.value !== value"
+  [style.top]="elem.error.top"
+  [style.left]="elem.error.left"
+  [style.position]="'fixed'"
+>
+  <div *ngFor="let error of control.errors | keyvalue"
+    class="alert alert-danger p-1"
+    role="alert">
+    <span *ngIf="error.key == 'required'">
+      Please Provide a name.
+    </span>
+    <span *ngIf="error.key == 'nameExist'">
+      Name already exists.
+    </span>
+  </div>
+</div>

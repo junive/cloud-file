@@ -1,0 +1,110 @@
+
+
+<div>
+  <nav 
+    style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" 
+    aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li *ngFor="let folder of navPath; let index = index"
+        class="breadcrumb-item"
+        (click)="openFolderEmit(folder.id)" 
+        [class.active]="(navPath.length - 1 == index)"
+      > {{folder.name}} </li>
+    </ol>
+  </nav>
+
+  <div *ngIf="!config.hideNavFolder">
+    <div style="display:inline-flex"
+      class="pointer" 
+      *ngFor="let folder of navPath"
+      (click)="openFolderEmit(folder.id)" 
+    >
+      {{ folder.name }} // 
+    </div>
+  </div>
+
+   <div
+    class="pointer" 
+    (click)="addFolderEmit()">
+   CREATE
+  </div>
+</div>
+
+<!-- <ng-container #fileContainerRef> </ng-container> -->
+
+
+<!-- <div *ngIf="filesReact as filesObs"> -->
+<!--  <ng-template #fileTemplateRef > -->
+<cdk-virtual-scroll-viewport itemSize="50"  style="height: 400px">
+  <div *cdkVirtualFor="let file of files" 
+    (dblclick)="file.isFolder ? 
+      openFolderEmit(file.id) : openFileEmit(file.id) "
+    (contextmenu)="openMenuContext($event, file.id)"
+  >   
+    <svg
+      width="5%" 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 512 512"
+    > 
+      <path [attr.d]="mysvg.folder.d"/>
+    </svg>
+    <span  >{{file.name}} </span>
+  </div>
+</cdk-virtual-scroll-viewport>
+<!-- </ng-template> -->
+
+
+<ul #contextMenuRef
+  [class.show]="!menu.context.hide"
+  [style.top]="menu.context.top"
+  [style.left]="menu.context.left"
+  class="dropdown-menu">
+  <li>
+    <a role="button"
+      class="dropdown-item"
+      [class.disabled]="selectedIds.length > 1"
+      (click)="renameFileEmit()"
+    > Rename </a>
+  </li>
+  <li>
+    <a role="button"
+      class="dropdown-item"
+      (click)="deleteFileEmit()"
+    > Delete </a>
+  </li>
+    <li #buttonMoveFiles>
+    <a role="button"
+      class = "dropdown-item"
+      (mouseover)="openMenuMove($event, buttonMoveFiles)"
+      (mouseout)="menu.move.hide = true"
+    > Move To ></a>
+  </li>  
+  <li><a  role="button" class="dropdown-item" href="#">Another link</a></li>
+</ul> 
+
+
+<ul #menuMoveFileRef
+  class="dropdown-menu"
+  [class.show]="!menu.move.hide"
+  [style.top]="menu.move.top"
+  [style.left]="menu.move.left"
+  [style.position]="'fixed'"
+  (mouseout)="menu.move.hide = true"
+  (mouseover)="menu.move.hide = false"
+>
+  <cdk-virtual-scroll-viewport itemSize="10"  style="height: 500px">
+    <li *cdkVirtualFor="let file of files" >
+      <a *ngIf="file.isFolder && selectedIds[0] !== file.id" 
+        role="button"
+        class="dropdown-item"
+        (click)="moveFilesEmit(file.id!)"
+      > {{ file.name }}</a>
+    </li>
+  </cdk-virtual-scroll-viewport>
+</ul>  
+
+<!-- </div> -->
+
+
+
+
