@@ -1,10 +1,8 @@
 import { Injectable } from "@angular/core";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { Subject } from "rxjs";
-import { MyDialog, MyDialogEnum, MyNamingDialog, MySelectingDialog} from "../models/dialog/my-dialog";
+import { MyDialog} from "../models/dialog/my-dialog";
 import { MyDialogComponent } from "../models/dialog/my-dialog-component";
-import { NamingDialogComponent } from "src/app/shared/components/dialog/naming/naming.component";
-import { SelectingDialogComponent } from "src/app/shared/components/dialog/selecting/selecting.component";
 
 @Injectable()
 export class DialogService {

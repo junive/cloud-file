@@ -1,4 +1,4 @@
-import { MyData } from "../http/my-data"
+import { MyData } from "../http/my-controller"
 
 export interface MyFile extends MyData {
     isFolder?: boolean

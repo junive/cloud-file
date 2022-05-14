@@ -1,6 +1,5 @@
 import { Component, HostListener, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ValueExistDirective } from '../../../directives/value-exist.directive';
 import { MyNamingDialog } from '../../../models/dialog/my-dialog';
 
 @Component({

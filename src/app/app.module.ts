@@ -1,11 +1,10 @@
 import { Injector, NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { FileModule } from './modules/file/file.module';
-import { DialogService } from './shared/services/dialog.service';
 import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
-import { SharedModule } from './shared/shared.module';
+import { MyDialogModule } from './shared/modules/dialog.module';
+import { MyProviderModule } from './shared/modules/provider.module';
 
 
 @NgModule({
@@ -14,13 +13,15 @@ import { SharedModule } from './shared/shared.module';
   ],
   imports: [
     BrowserModule,
-    FileModule,
     AppRoutingModule, 
     RouterModule,
-    SharedModule
+    //InputSharedModule,
+    MyDialogModule, // Doesn't use selectors
+    MyProviderModule
+    //FileSharedModule,
   ],
   providers: [
-    DialogService,
+    
   ],
   bootstrap: [AppComponent],
   

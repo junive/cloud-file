@@ -1,12 +1,12 @@
 import { AbstractControl, AsyncValidatorFn,  ValidationErrors } from '@angular/forms';
 import { distinctUntilChanged, map, Observable, of, switchMap, take, timer } from 'rxjs';
-import { MyData, MyDataService } from '../models/http/my-data';
+import { MyData, MyController } from '../models/http/my-controller';
 import { MyGetListQuery } from '../models/http/my-query';
 
 
 export class ValueExistDirective {
   
-  static valid( key:string, service: MyDataService, 
+  static valid( key:string, controller: MyController, 
     query: MyGetListQuery) : AsyncValidatorFn  {
    // const valids: AsyncValidatorFn[] = [];
     //directives.forEach(d => {
@@ -14,7 +14,7 @@ export class ValueExistDirective {
         return (control: AbstractControl) : Observable<ValidationErrors | null> => {
         if (!control.value) return of(null);
         return timer(100).pipe(
-          switchMap( () =>  service.getList$(query) ),
+          switchMap( () =>  controller.getList$(query) ),
           //debounceTime(200),
           distinctUntilChanged(),
           take(1),

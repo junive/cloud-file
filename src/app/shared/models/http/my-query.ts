@@ -6,7 +6,7 @@ export interface MyGetListQuery {
   orderBy?: string;
 }
 
-export interface MyMoveQuery { }
+//export interface MyMoveQuery { }
 
 export interface MyUpdateQuery {
   id:string;
