@@ -1,30 +1,16 @@
 import { Injectable } from '@angular/core';
 import { MyFile, MyFolder } from '../../../shared/models/file/my-file'
 import { Observable } from 'rxjs'
-import { MyFileList } from './file-list.helper';
+import { FileList } from './file-list.helper';
 import { MyFileCreateQuery, MyFileGetListQuery, MyFileUpdateQuery } from '../../../shared/models/file/my-file-query';
-import { FileController } from '../file.controller';
+import { FileController } from '../../abstract/file.controller';
+import { MyFileController } from 'src/app/shared/models/file/my-file-controller';
 
-function v4() { // Public Domain/MIT
-  var d = new Date().getTime();//Timestamp
-  var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16;//random number between 0 and 16
-      if(d > 0){//Use timestamp until depleted
-          r = (d + r)%16 | 0;
-          d = Math.floor(d/16);
-      } else {//Use microseconds since page-load if supported
-          r = (d2 + r)%16 | 0;
-          d2 = Math.floor(d2/16);
-      }
-      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
-}
 
 
 @Injectable()
-export class LocalDropController extends FileController {
-  fileList: MyFileList;
+export class LocalDropController extends FileController implements MyFileController{
+  fileList: FileList;
 
 
   root: MyFolder = <MyFolder> {
@@ -36,30 +22,29 @@ export class LocalDropController extends FileController {
 
   constructor() { 
     super();
-    this.fileList = new MyFileList();
+    this.fileList = new FileList();
     this.fileList.add(this.root);
-      const folderA = this.fileList.createFolder({id:v4(), name: 'Folder _A', parentId: this.root.id }); 
-      this.fileList.createFolder({id:v4(), name: 'aa', parentId: this.root.id }); 
-      const folderAB = this.fileList.createFolder({id:v4(), name: 'Folder BB', parentId: folderA.id });
-      this.fileList.createFolder({id:v4(), name: 'aa', parentId: folderA.id });
-      this.fileList.createFolder({id:v4(), name: 'Folder ABC', parentId: folderAB.id });
-      this.fileList.createFile({id:v4(), name: 'File ABC', parentId: folderAB.id });
-      this.fileList.createFolder({ id:v4(), name: 'Folder E', parentId: this.root.id });
-      this.fileList.createFolder({id:v4(), name: 'Folder C', parentId: this.root.id });
-      this.fileList.createFile({id:v4(), name: 'File A', parentId: this.root.id }); 
-      this.fileList.createFile({id:v4(), name: 'File B', parentId: this.root.id }); 
+    const folderA = this.fileList.createFolder({id : FileList.v4(), name: 'Folder _A', parentId: this.root.id }); 
+    this.fileList.createFolder({id : FileList.v4(), name: 'aa', parentId: this.root.id }); 
+    const folderAB = this.fileList.createFolder({id: FileList.v4(), name: 'Folder BB', parentId: folderA.id });
+    this.fileList.createFolder({id: FileList.v4(), name: 'aa', parentId: folderA.id });
+    this.fileList.createFolder({id: FileList.v4(), name: 'Folder ABC', parentId: folderAB.id });
+    this.fileList.createFile({id: FileList.v4(), name: 'File ABC', parentId: folderAB.id });
+    this.fileList.createFolder({ id: FileList.v4(), name: 'Folder E', parentId: this.root.id });
+    this.fileList.createFolder({id: FileList.v4(), name: 'Folder C', parentId: this.root.id });
+    this.fileList.createFile({id: FileList.v4(), name: 'File A', parentId: this.root.id }); 
+    this.fileList.createFile({id: FileList.v4(), name: 'File B', parentId: this.root.id }); 
 
-      for (let i =1; i<10000 ; i++) {
-        this.fileList.createFolder({ id:v4(), name: 'Folder '+i, parentId: this.root.id });
-      }
+    for (let i =1; i<10000 ; i++) {
+      this.fileList.createFolder({ id: FileList.v4(), name: 'Folder '+i, parentId: this.root.id });
+    }
 
   }
-  
   
   override create$(q: MyFileCreateQuery): Observable<void> {
     return this.observable(
       this.fileList.createFolder({
-        id:v4(), name: q.name!, parentId: q.driveId!
+        id: FileList.v4(), name: q.name!, parentId: q.driveId!
       })
     );
     //this.fileList.sortbyNameASC(parentId);
@@ -76,48 +61,16 @@ export class LocalDropController extends FileController {
   override getList$(q: MyFileGetListQuery): Observable<MyFile[]> {
     const get = (): MyFile[]  => {
       let files: MyFile[] = [];
-      /* if (q.driveId && q.names) {
-        files = this.fileList.getFilesByNames(q.driveId, q.names)
-      } else */ if (q.driveId) {
-        //if (!q.driveId) q.driveId = this.root.id;
-        files = this.fileList.getFiles(q.driveId!)
-      } else if (q.ids) {
-        files = this.fileList.getFilesByIds(q.ids)
-      }
-      if (q.orderBy == "asc") {
-        this.fileList.sortByNameASC(files);
-      }
+      if (q.driveId)  files = this.fileList.getFiles(q.driveId!)
+      if (q.ids) files = this.fileList.getFilesByIds(q.ids)
+      if (q.orderBy == "asc") this.fileList.sortByNameASC(files);
       return files;
     }
     return this.observable(get());
-
   }
-
-/*getFilesByIds$(fileIds: string[]) {
-    return this.observable(this.fileList.getFilesByIds(fileIds));
-  }
-
-  getFilesByNames$(folderId: string, names: string[]) {
-    return this.observable( this.fileList.getFilesByNames(folderId, names));
-  }*/
 
   override getRootFolder(): MyFolder {
     return this.root;
-  }
-
-  /*
-  moveFiles$(filesId: string[], targetFolderId: string ): Observable<void>  {
-    return this.observable(
-      this.fileList.moveFiles(filesId, targetFolderId)
-    );
-  }
-  */
-
-  observable(request:any): Observable<any> {
-    return new Observable<any> (observer => {
-      observer.next(request);
-      observer.complete();
-    });
   }
 
   override update$(q: MyFileUpdateQuery): Observable<void> {
@@ -130,18 +83,4 @@ export class LocalDropController extends FileController {
   }
 
 
-  
-
-  /*
-  updateFilesObserver(filesId? : string[]) {
-    // Have to create a new array in order to push it on view
-    const result: MyFile[] = [...this.fileList.getCurrentFiles(filesId)]; 
-    if (!this.filesSubject) {
-      this.filesSubject = new BehaviorSubject( result );
-    } else {
-      this.filesSubject.next(result);
-    }
-    this.setFilesObserver(this.filesSubject)//.pipe(shareReplay())
-  }
-  */
 }

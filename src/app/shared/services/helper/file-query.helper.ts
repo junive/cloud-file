@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { MyFile } from "../../../shared/models/file/my-file";
-import { MyFilesMoveQuery, MyFileUpdateQuery } from "../../../shared/models/file/my-file-query";
+import { MyFile } from "../../models/file/my-file";
+import { MyFilesMoveQuery, MyFileUpdateQuery } from "../../models/file/my-file-query";
 
 @Injectable()
 export class FileQueryHelper {

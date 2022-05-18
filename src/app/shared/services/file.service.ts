@@ -1,30 +1,41 @@
-import { BehaviorSubject, concatMap, EMPTY, map, Subject, tap } from "rxjs";
-import { FileController } from "src/app/core/http/file.controller";
-import { MyDialogEnum, MyNamingDialog, MySelectingDialog } from "../models/dialog/my-dialog";
+import { BehaviorSubject, concatMap, EMPTY, Subject, tap } from "rxjs";
+import { FileController } from "src/app/core/abstract/file.controller";
 import { MyFile, MyFolder } from "../models/file/my-file";
 import { MyFileSelect } from "../models/file/my-file-select";
 import { MyFilesMoveQuery } from "../models/file/my-file-query";
-import { MyProviderModule } from "../modules/provider.module";
-import { FileDialogHelper } from "./helper/file-dialog.helper";
+
+import { Inject, Injectable } from "@angular/core";
+import { Controller } from "src/app/core/abstract/controller";
 import { FileQueryHelper } from "./helper/file-query.helper";
+import { FileFormHelper } from "./helper/file-form.helper";
+import { MySingleExistForm } from "../models/form/my-form";
+import { MyMoveOptionFileForm, MyOptionsFile } from "../models/form/my-file-form";
 
 
+
+@Injectable()
 export class FileService {
-  private queryHelp: FileQueryHelper;
-  private dialogHelp: FileDialogHelper;
+
+  //private queryHelp: FileQueryHelper;
   private currentId: string = "";
- // target$: Subject<MouseEvent> = new Subject<MouseEvent>();
-  //actions$: Subject<MyFileAction> = new Subject<MyFileAction>();
+
   select$: Subject<MyFileSelect> = new Subject<MyFileSelect>();
   files$: BehaviorSubject<MyFile[]> = new BehaviorSubject<MyFile[]>([]);
   pathNav$: BehaviorSubject<MyFolder[]> = new BehaviorSubject<MyFolder[]>([]);
 
   timeStartA: any; 
-  constructor(private controller: FileController) { 
+  constructor(@Inject(Controller) private controller: FileController,
+              private queryHelp: FileQueryHelper,
+              private formHelp: FileFormHelper
+             // @Inject(FormService) private formService: FileFormService,
+              
+  ) { 
     this.timeStartA = Date.now();
-
-    this.dialogHelp = MyProviderModule.injector.get(FileDialogHelper);
-    this.queryHelp = MyProviderModule.injector.get(FileQueryHelper); 
+    // Avoid to inject it on each Local-Drop, Google-Photos modules....
+    //this.dialogHelp = MyProviderModule.injector.get(FileDialogHelper);
+    //this.queryHelp = MyProviderModule.injector.get(FileQueryHelper); 
+    //this.dialogService = MyProviderModule.injector.get(DialogService); 
+   // this.formService = MyProviderModule.injector.get(FileFormService); 
 
     this.initFolder(this.controller.getRootFolder().id);
   }
@@ -55,13 +66,20 @@ export class FileService {
 
   addFolder(targetId?: string) {
     targetId = targetId ?? this.currentId;
-    const dialog = this.dialogHelp.getNamingDialog(this.controller, targetId);
-    this.dialogHelp.openCreateFolder$(dialog).pipe(
-      concatMap( (dialog: MyNamingDialog) => {
-        const query = { name: dialog.name, driveId: targetId }
+    //const dialog = this.dialogHelp.getNamingDialog(this.controller, targetId);
+    //this.dialogHelp.openCreateFolder$(dialog).pipe(
+
+     const model = <MySingleExistForm> {
+      autofocus: true,
+      required: true,
+      valueExist: { key:"name", query: { driveId: targetId } }
+    }
+    this.formHelp.createFolder$(model).pipe(
+      concatMap( (model: MySingleExistForm) => {
+        const query = { name: model.value, driveId: targetId }
         return this.controller.create$(query);
       })
-    ).subscribe( () => this.refreshFiles() )
+    ).subscribe( () => this.refreshFiles() ) 
   }
 
   deleteFiles(filesId: string[]) {
@@ -69,6 +87,9 @@ export class FileService {
       .subscribe(response => this.refreshFiles())
   }
 
+  getController() : FileController {
+    return this.controller
+  }
   /*
   getCurrentFiles$(q?: MyFileGetListQuery): Observable<MyFile[]> {
     const query =  {...{ driveId: this.currentId }, ...q! }
@@ -89,7 +110,7 @@ export class FileService {
       files: [], targets: [], targetId: targetId 
     }
 
-    this.controller.getList$({ ids: movesId }).pipe(
+     this.controller.getList$({ ids: movesId }).pipe(
       concatMap( (moveFiles: MyFile[]) => {
         if (moveFiles.length == 0) return EMPTY;
         move.files = moveFiles;
@@ -98,18 +119,18 @@ export class FileService {
       concatMap( (targetFiles: MyFile[]) => {
         move.targets = targetFiles;
         return (this.queryHelp.hasTwin(move)) ?
-          this.dialogHelp.openSelectingMove$({}):
-          new BehaviorSubject<MySelectingDialog>({}); // Just beautiful ;)
+          this.formHelp.moveOptionFile$() :
+          new Subject<MyMoveOptionFileForm>(); // Just beautiful ;)
       }),
-      concatMap( (dialog: MySelectingDialog) => {
-        const toKeep = dialog.selected === MyDialogEnum.KEEP;
+      concatMap( (model: MyMoveOptionFileForm) => {
+        const toKeep = model.selected === MyOptionsFile.KEEP;
         const deletesId = this.queryHelp.filterTwinsId(move);
         const queries = this.queryHelp.getMoveQueries(move, toKeep);
-        return (dialog.selected === MyDialogEnum.REPLACE) ?
-          this.controller.moveFiles$(queries, deletesId) :
+        return (model.selected === MyOptionsFile.REPLACE) ?
+          this.controller.moveList$(queries, deletesId) :
           this.controller.updateList$(queries);
       })
-    ).subscribe( ()=> this.refreshFiles() );
+    ).subscribe( ()=> this.refreshFiles() ); 
 
   }
 
@@ -137,18 +158,23 @@ export class FileService {
   }
 
   renameFile(fileId: string) {
-    this.controller.get$(fileId).pipe(
+     this.controller.get$(fileId).pipe(
       concatMap( (file: MyFile) => {
-        const dialog = this.dialogHelp.getNamingDialog(
-          this.controller, file.parentId, file.name
-        )
-        return this.dialogHelp.openRenameFile$(dialog);
+        const model = <MySingleExistForm> {
+          value: file.name, 
+          autofocus: true,
+          required: true,
+          valueExist: { 
+            key:"name", query: {driveId: file.parentId} 
+          }
+        }
+        return this.formHelp.renameFile$(model);
       }),
-      concatMap( (dialog: MyNamingDialog) => {
-        const query = { id: fileId, name: dialog.name };
+      concatMap( (model: MySingleExistForm) => {
+        const query = { id: fileId, name: model.value };
         return this.controller.update$(query);
       })
-    ).subscribe( () => { this.refreshFiles() } )
+    ).subscribe( () => { this.refreshFiles() } ) 
   }
 
 

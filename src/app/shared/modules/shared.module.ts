@@ -4,26 +4,35 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 import { DialogFooterComponent } from "../components/dialog/footer.component";
 import { DialogHeaderComponent } from "../components/dialog/header.component";
-import { NamingDialogComponent } from "../components/dialog/naming/naming.component";
-import { SelectingDialogComponent } from "../components/dialog/selecting/selecting.component";
-import { MyInputModule } from "./input.module";
+import { ErrorControlComponent } from "../components/forms/error-control/error.component";
+import { ValueExistDirective } from "../directives/value-exist.directive";
+import { DialogListener } from "../services/dialog.listener";
 
 @NgModule({
   declarations: [
     DialogHeaderComponent,
     DialogFooterComponent,
-    NamingDialogComponent,
-    SelectingDialogComponent,
+    
+    ValueExistDirective,
+
+    ErrorControlComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
-    MyInputModule
   ],
   exports: [
+    DialogHeaderComponent,
+    DialogFooterComponent,
+    ValueExistDirective,
+    ErrorControlComponent
   ],
+  providers: [
+    DialogListener
 
+    
+  ]
 })
-export class MyDialogModule { }
+export class MySharedModule { }

@@ -1,12 +1,6 @@
-import { Observable } from "rxjs";
-import { MyFile, MyFolder } from "./my-file";
-import { MyFileCreateQuery, MyFileGetListQuery, MyFileUpdateQuery } from "./my-file-query";
+import { MyController } from "../http/my-controller";
+import { MyFolder } from "./my-file";
 
-export interface MyFileController {
-  create$(q: MyFileCreateQuery): Observable<void>;
-  delete$(id: string): Observable<void>;
-  get$(id: string): Observable<MyFile>;
-  getList$(q: MyFileGetListQuery): Observable<MyFile[]>;
+export interface MyFileController extends MyController {
   getRootFolder(): MyFolder;
-  update$(q: MyFileUpdateQuery): Observable<void>;
 }

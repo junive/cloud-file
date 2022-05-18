@@ -1,9 +1,12 @@
 import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { DialogListener } from "../../services/dialog.listener";
 
 @Component({
   selector: "my-dialog-header",
   template: ` <div class="modal-header">
-                <h5 class="modal-title">{{title}}</h5>
+                <h5 class="modal-title">
+                  <ng-content></ng-content>
+                </h5>
                 <button type="button" 
                   class="btn-close" 
                   aria-label="Close"
@@ -12,13 +15,12 @@ import { Component, Input, Output, EventEmitter } from "@angular/core";
               </div>`,
   styleUrls: ['../../../../assets/scss/dialog.css']
 })
-export class DialogHeaderComponent {
-  @Input() title: string = "No Title";
-  @Output() dismissEvent = new EventEmitter<void>();
 
-  constructor() {}
+export class DialogHeaderComponent {
+
+  constructor(private service: DialogListener) {}
 
   dismiss() {
-    this.dismissEvent.emit();
+    this.service.dismiss();
   }
 }

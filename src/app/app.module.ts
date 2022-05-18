@@ -3,9 +3,6 @@ import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
-import { MyDialogModule } from './shared/modules/dialog.module';
-import { MyProviderModule } from './shared/modules/provider.module';
-
 
 @NgModule({
   declarations: [
@@ -15,13 +12,14 @@ import { MyProviderModule } from './shared/modules/provider.module';
     BrowserModule,
     AppRoutingModule, 
     RouterModule,
+    
     //InputSharedModule,
-    MyDialogModule, // Doesn't use selectors
-    MyProviderModule
+    //MyDialogModule, // Doesn't use selectors
+    //MyProviderModule
     //FileSharedModule,
   ],
   providers: [
-    
+
   ],
   bootstrap: [AppComponent],
   

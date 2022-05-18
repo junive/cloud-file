@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core'
-import { MyFolder } from 'src/app/shared/models/file/my-file';
-import { FileService } from 'src/app/shared/services/file.service';
+import { MyFolder } from '../../../models/file/my-file';
+import { FileService } from '../../../services/file.service';
 
 @Component({
   selector: "my-path-nav",

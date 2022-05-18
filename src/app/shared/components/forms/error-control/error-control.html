@@ -1,0 +1,14 @@
+<div *ngIf="control.errors && control.dirty && !validForm"
+>
+  <div *ngFor="let error of control.errors | keyvalue"
+    class="alert alert-danger p-1"
+    role="alert">
+    <span *ngIf="error.key == 'required'">
+      Please Provide a name.
+    </span>
+    <span *ngIf="error.key == 'nameExist'">
+      Name already exists.
+    </span>
+  </div>
+</div>
+

@@ -1,7 +1,7 @@
-import { Component, HostListener, Input } from '@angular/core'
-import { MyFile } from 'src/app/shared/models/file/my-file';
-import { MyFileConfig } from 'src/app/shared/models/file/my-file-config';
-import { FileService } from 'src/app/shared/services/file.service';
+import { Component, Input } from '@angular/core'
+import { MyFile } from '../../..//models/file/my-file';
+import { MyFileConfig } from '../../../models/file/my-file-config';
+import { FileService } from '../../../services/file.service';
 import { MySvgAsset } from '../../../../../assets/svg';
 
 @Component({

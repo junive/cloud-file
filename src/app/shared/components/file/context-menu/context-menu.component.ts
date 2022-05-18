@@ -1,7 +1,7 @@
 import { Component, HostListener, Input, Optional } from '@angular/core'
-import { MyFile } from 'src/app/shared/models/file/my-file';
-import { MyFileSelect } from 'src/app/shared/models/file/my-file-select';
-import { FileService } from 'src/app/shared/services/file.service';
+import { MyFile } from '../../../models/file/my-file';
+import { MyFileSelect } from '../../../models/file/my-file-select';
+import { FileService } from '../../../services/file.service';
 
 @Component({
   selector: "my-context-menu",
