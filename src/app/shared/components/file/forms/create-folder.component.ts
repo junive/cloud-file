@@ -1,26 +1,29 @@
 import { Component, Inject } from '@angular/core';
-import { FormListener } from 'src/app/shared/services/form.listener';
+
+import { FormListener } from '../../../listeners/form.listener';
 
 @Component({
   selector:"my-create-folder",
   template:`<my-dialog-header>Create new folder the file</my-dialog-header>
             <div class="modal-body">
-              <my-single-exist-form ></my-single-exist-form>
+              <form [formGroup]="listen.form">
+                <input #myinput type="text"
+                  class="form-control" 
+                  [formControl]="$any(listen.model).naming.control"
+                  ngbAutofocus
+                />
+                <my-error-control
+                  [input]="myinput"
+                  [control]="$any(listen.model).naming.control"
+                ></my-error-control>
+              </form>
             </div>
             <my-dialog-footer ></my-dialog-footer>`,
-  providers: [
-    FormListener
-  ]
   //styleUrls: ['../../../../../assets/scss/dialog.css']
 })
 export class CreateFolderComponent {
 
-  constructor(public formListener: FormListener) { }
-
-  ngOnInit() {
-    this.formListener.submit$.next({valid:false});
-   }
-
+  constructor(public listen: FormListener) { }
 
 }
 

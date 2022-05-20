@@ -1,10 +1,19 @@
-import { MyData } from "../http/my-controller"
+import { MyData } from "../abstract/my-data"
 
-export interface MyFile extends MyData {
+// It's a File but without id
+export interface MyFileCreate {
   isFolder?: boolean
   name: string
   parentId: string
 }
 
+export interface MyFile extends MyFileCreate, MyData { }
+
 export interface MyFolder extends MyFile { }
 
+export interface MyFileSelect {
+  ids: string[],
+  menu?: {
+    mouse$: MouseEvent
+  }
+}

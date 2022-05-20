@@ -1,15 +1,16 @@
 import { BehaviorSubject, concatMap, EMPTY, Subject, tap } from "rxjs";
-import { FileController } from "src/app/core/abstract/file.controller";
+import { FileController } from "../../core/abstract/file.controller";
 import { MyFile, MyFolder } from "../models/file/my-file";
-import { MyFileSelect } from "../models/file/my-file-select";
+import { MyFileSelect } from "../models/file/my-file";
 import { MyFilesMoveQuery } from "../models/file/my-file-query";
 
 import { Inject, Injectable } from "@angular/core";
-import { Controller } from "src/app/core/abstract/controller";
+import { Controller } from "../../core/abstract/controller";
 import { FileQueryHelper } from "./helper/file-query.helper";
 import { FileFormHelper } from "./helper/file-form.helper";
-import { MySingleExistForm } from "../models/form/my-form";
-import { MyMoveOptionFileForm, MyOptionsFile } from "../models/form/my-file-form";
+import { MyMovingFileForm, MyNamingFileForm } from "../models/file/my-file-form";
+import { MyRadioValue } from "../models/abstract/my-form";
+
 
 
 
@@ -69,14 +70,9 @@ export class FileService {
     //const dialog = this.dialogHelp.getNamingDialog(this.controller, targetId);
     //this.dialogHelp.openCreateFolder$(dialog).pipe(
 
-     const model = <MySingleExistForm> {
-      autofocus: true,
-      required: true,
-      valueExist: { key:"name", query: { driveId: targetId } }
-    }
-    this.formHelp.createFolder$(model).pipe(
-      concatMap( (model: MySingleExistForm) => {
-        const query = { name: model.value, driveId: targetId }
+    this.formHelp.createFolder$( targetId ).pipe(
+      concatMap( (model: MyNamingFileForm) => {
+        const query = { name: model.naming.value, driveId: targetId }
         return this.controller.create$(query);
       })
     ).subscribe( () => this.refreshFiles() ) 
@@ -110,7 +106,7 @@ export class FileService {
       files: [], targets: [], targetId: targetId 
     }
 
-     this.controller.getList$({ ids: movesId }).pipe(
+    this.controller.getList$({ ids: movesId }).pipe(
       concatMap( (moveFiles: MyFile[]) => {
         if (moveFiles.length == 0) return EMPTY;
         move.files = moveFiles;
@@ -118,15 +114,16 @@ export class FileService {
       }),
       concatMap( (targetFiles: MyFile[]) => {
         move.targets = targetFiles;
+        const empty = {moving: {value: MyRadioValue.EMPTY}};
         return (this.queryHelp.hasTwin(move)) ?
           this.formHelp.moveOptionFile$() :
-          new Subject<MyMoveOptionFileForm>(); // Just beautiful ;)
+          new BehaviorSubject<MyMovingFileForm>(empty);
       }),
-      concatMap( (model: MyMoveOptionFileForm) => {
-        const toKeep = model.selected === MyOptionsFile.KEEP;
+      concatMap( (model: MyMovingFileForm) => {
+        const toKeep = model.moving.value === MyRadioValue.KEEP;
         const deletesId = this.queryHelp.filterTwinsId(move);
         const queries = this.queryHelp.getMoveQueries(move, toKeep);
-        return (model.selected === MyOptionsFile.REPLACE) ?
+        return (model.moving.value === MyRadioValue.REPLACE) ?
           this.controller.moveList$(queries, deletesId) :
           this.controller.updateList$(queries);
       })
@@ -159,19 +156,11 @@ export class FileService {
 
   renameFile(fileId: string) {
      this.controller.get$(fileId).pipe(
-      concatMap( (file: MyFile) => {
-        const model = <MySingleExistForm> {
-          value: file.name, 
-          autofocus: true,
-          required: true,
-          valueExist: { 
-            key:"name", query: {driveId: file.parentId} 
-          }
-        }
-        return this.formHelp.renameFile$(model);
-      }),
-      concatMap( (model: MySingleExistForm) => {
-        const query = { id: fileId, name: model.value };
+      concatMap( (file: MyFile) => 
+        this.formHelp.renameFile$(file.parentId, file.name)
+      ),
+      concatMap( (model: MyNamingFileForm) => {
+        const query = { id: fileId, name: model.naming.value };
         return this.controller.update$(query);
       })
     ).subscribe( () => { this.refreshFiles() } ) 

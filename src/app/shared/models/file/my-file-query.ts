@@ -1,4 +1,4 @@
-import { MyCreateQuery, MyGetListQuery, MyUpdateQuery } from "../http/my-query";
+import { MyCreateQuery, MyGetListQuery, MyUpdateQuery } from "../abstract/my-query";
 import { MyFile } from "./my-file";
 
 export interface MyFileCreateQuery extends MyCreateQuery {

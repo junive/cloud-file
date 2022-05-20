@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core'
-import { MyFile } from '../../..//models/file/my-file';
+import { MyFile } from '../../../models/file/my-file';
 import { MyFileConfig } from '../../../models/file/my-file-config';
 import { FileService } from '../../../services/file.service';
 import { MySvgAsset } from '../../../../../assets/svg';
@@ -44,11 +44,11 @@ export class ExplorerFileComponent  {
     this.service.openFolder(folderId);
   }
 
-  openMenuContext(event: MouseEvent, fileId:string) {
-    event.preventDefault();
+  openMenuContext(event$: MouseEvent, fileId:string) {
+    event$.preventDefault();
     this.service.select$.next( {
       ids: [fileId], 
-      menu: { event : event}
+      menu: { mouse$ : event$}
     });
   }
 

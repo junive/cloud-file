@@ -1,4 +1,5 @@
-<div *ngIf="control.errors && control.dirty && !validForm"
+<div *ngIf="control.errors && control.dirty && !control.valid"
+    [style]="style"
 >
   <div *ngFor="let error of control.errors | keyvalue"
     class="alert alert-danger p-1"

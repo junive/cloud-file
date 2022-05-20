@@ -1,63 +1,35 @@
-import { Component, Inject } from '@angular/core';
-import { FormListener } from 'src/app/shared/services/form.listener';
-import { MyForm } from '../../../models/form/my-form';
+import { Component } from '@angular/core';
+import { FormListener } from '../../../listeners/form.listener';
 
 @Component({
   selector:"my-rename-file",
   template:`<my-dialog-header>Rename the file</my-dialog-header>
             <div class="modal-body">
-              <my-single-exist-form ></my-single-exist-form>
+            <form [formGroup]="listen.form">
+              <input #myinput type="text"
+                class="form-control" 
+                [formControl]="$any(listen.model).naming.control"
+                ngbAutofocus
+              />
+              <my-error-control
+                [input]="myinput"
+                [control]="$any(listen.model).naming.control"
+              ></my-error-control>
+            </form>
             </div>
             <my-dialog-footer ></my-dialog-footer>`,
-  providers: [
+/*   providers: [
     FormListener
-  ]
+  ] */
   //styleUrls: ['../../../../../assets/scss/dialog.css']
 })
 export class RenameFileComponent {
- // model: MySingleExistForm = {};
-  //save$: Subject<MySingleExistForm> = new Subject<MySingleExistForm>()
- // model$!: BehaviorSubject<MySingleExistForm | undefined>;
- // submit$!: BehaviorSubject<MySubmitForm>;
-  
 
- constructor(public formListener: FormListener) { }
+ constructor(public listen: FormListener) { }
 
- ngOnInit() {
-   this.formListener.submit$.next({valid:true});
- 
-    /*
-    this.formService.submit$.pipe(
-      concatMap(submit => {
-        console.log("rename: ", submit.valid && submit.save)
-        return submit.valid && submit.save ?
-          this.model$ : EMPTY;
-      }),
-      tap(model =>
-        console.log(model)
-      )
-    ).subscribe();
-    */
+  ngOnInit() {
+   // this.listener.submit$.next({valid:true});
   }
-
-
-
-  setModel(model: MyForm) {
-    //console.log(model);
-   // this.model$.next(<MySingleExistForm> model);
-   // this.model$ = new BehaviorSubject<MySingleExistForm>(model);
-
-  }
-
- 
-
-  save() {
-    //this.save$.next();
-    //if (!this.model.valid) return;
-   // this.dialogService.close();
-  }
-
-
 
 }
 

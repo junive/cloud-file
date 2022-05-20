@@ -2,15 +2,9 @@ import { Directive, ElementRef, Inject, Input } from '@angular/core';
 import { AbstractControl, AsyncValidator, AsyncValidatorFn,  NG_ASYNC_VALIDATORS,  ValidationErrors } from '@angular/forms';
 import { distinctUntilChanged, map, Observable, of, switchMap, take, timer } from 'rxjs';
 import { Controller } from 'src/app/core/abstract/controller';
-import { MyValueExistValidator } from '../models/form/my-input';
-import { MyData } from '../models/http/my-controller';
-import { MyGetListQuery } from '../models/http/my-query';
+import { MyValueExistValidator } from '../models/abstract/my-validator';
 
-/*
-export interface MyValueExist {
-  key: string;
-  query?: MyGetListQuery;
-}*/
+import { MyData } from '../models/abstract/my-data';
 
 @Directive({
   selector: '[valueExist], [nameExist]',
@@ -27,31 +21,45 @@ export class ValueExistDirective implements AsyncValidator{
     this.model = model;
   }
 
-  @Input() set nameExist(query: MyGetListQuery) {
-    this.model = { key:"name", query: query } ;
+/*
+  @Input() set nameExist(name : {query: any, value?: string}) {
+    this.model = <MyValueExistValidator> { 
+      key:"name", query: <MyGetListQuery> name.query, value: name.value
+    } ;
+  }*/
+
+  constructor( @Inject(Controller) private controller: Controller) { }
+
+  // Use for directive template
+  validate(control: AbstractControl):  Observable<ValidationErrors | null> {
+    return this.valid$(this.model, control);
   }
 
-  constructor( @Inject(Controller) private controller: Controller) {
-    
-   }
+  // Use for reactiveForms
+  validator( model: MyValueExistValidator): AsyncValidatorFn  {
+    return (control: AbstractControl) : Observable<ValidationErrors | null>  => {
+      return this.valid$(model, control);
+    }
+  }
 
-  validate(control: AbstractControl):  Observable<ValidationErrors | null> {
-
-    if ( !this.model.key || !control.value) return of(null);
+  valid$( model: MyValueExistValidator, control: AbstractControl) {
+    if ( !model.key || !control.value) return of(null);
     return timer(100).pipe(
-      switchMap( () => this.controller.getList$(this.model.query!) ),
+      switchMap( () => this.controller.getList$(model.query ?? {} ) ),
       //debounceTime(200),
       distinctUntilChanged(),
       take(1),
       map( (datas: MyData[]) => { // Ex : MyFile
         const obj : any = {}
-        obj[this.model.key+"Exist"] = true; // Ex : { nameExist : true }
+        obj[model.key+"Exist"] = true; // Ex : { nameExist : true }
         const exist = datas.some( (data:MyData) => 
           // Need to cast string key for "any" reason...
-          data[<keyof typeof data> this.model.key] == control.value);
-          return exist ? obj : null;
+          control.value != model.value &&
+          data[<keyof typeof data> model.key] == control.value
+        );
+        return exist ? obj : null;
       }),
     )
-   }
-
+  }
 }
+

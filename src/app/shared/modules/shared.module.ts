@@ -6,6 +6,7 @@ import { DialogFooterComponent } from "../components/dialog/footer.component";
 import { DialogHeaderComponent } from "../components/dialog/header.component";
 import { ErrorControlComponent } from "../components/forms/error-control/error.component";
 import { ValueExistDirective } from "../directives/value-exist.directive";
+import { ElementPositionPipe } from "../pipes/element-position";
 import { DialogListener } from "../services/dialog.listener";
 
 @NgModule({
@@ -14,7 +15,7 @@ import { DialogListener } from "../services/dialog.listener";
     DialogFooterComponent,
     
     ValueExistDirective,
-
+    ElementPositionPipe,
     ErrorControlComponent
   ],
   imports: [
@@ -27,12 +28,13 @@ import { DialogListener } from "../services/dialog.listener";
     DialogHeaderComponent,
     DialogFooterComponent,
     ValueExistDirective,
-    ErrorControlComponent
+    ErrorControlComponent,
+    ElementPositionPipe
   ],
   providers: [
-    DialogListener
-
-    
+    DialogListener,
+    ValueExistDirective,
+    ElementPositionPipe
   ]
 })
 export class MySharedModule { }

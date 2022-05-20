@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { MyForm } from "../models/form/my-form";
+import { MyForm } from "../models/abstract/my-form";
 
 @Injectable()
 export class DialogListener {

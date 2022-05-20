@@ -17,9 +17,9 @@ export class GooglePhotosController extends FileController implements MyFileCont
     super();
     this.fileList = new FileList();
     this.root = this.fileList.createFolder(this.root);
-    this.fileList.createFolder({id:  FileList.v4(), name: 'Folder _AA', parentId: this.root.id }); 
-    this.fileList.createFolder({id: FileList.v4(), name: 'Folder BB', parentId: this.root.id });
-    this.fileList.createFile({id: FileList.v4(), name: 'File ABC', parentId: this.root.id });
+    this.fileList.createFolder({name: 'Folder _AA', parentId: this.root.id }); 
+    this.fileList.createFolder({ name: 'Folder BB', parentId: this.root.id });
+    this.fileList.createFile({name: 'File ABC', parentId: this.root.id });
   }
 
   override getRootFolder(): MyFolder {
@@ -44,7 +44,7 @@ export class GooglePhotosController extends FileController implements MyFileCont
   override create$(q: MyFileCreateQuery): Observable<void> {
     return this.observable(
       this.fileList.createFolder({
-        id: FileList.v4(), name: q.name!, parentId: q.driveId!
+         name: q.name!, parentId: q.driveId!
       })
     );
   }

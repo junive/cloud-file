@@ -1,8 +1,7 @@
 
 <ul #contextMenuRef
   [class.show]="!menu.context.hide"
-  [style.top]="menu.context.top"
-  [style.left]="menu.context.left"
+  [style]="menu.context.style"
   class="dropdown-menu">
   <li>
     <a role="button"
@@ -17,10 +16,10 @@
       (click)="deleteFileEmit()"
     > Delete </a>
   </li>
-    <li #buttonMoveFiles>
+    <li #buttonMove>
     <a role="button"
       class = "dropdown-item"
-      (mouseover)="openMenuMove(buttonMoveFiles)"
+      (mouseover)="openMenu(buttonMove, menu.move)"
       (mouseout)="menu.move.hide = true"
     > Move To ></a>
   </li>  
@@ -31,9 +30,7 @@
 <ul #menuMoveFileRef
   class="dropdown-menu"
   [class.show]="!menu.move.hide"
-  [style.top]="menu.move.top"
-  [style.left]="menu.move.left"
-  [style.position]="'fixed'"
+  [style]="menu.move.style"
   (mouseout)="menu.move.hide = true"
   (mouseover)="menu.move.hide = false"
 >

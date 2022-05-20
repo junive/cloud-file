@@ -4,7 +4,7 @@ import { GooglePhotosComponent } from './components/google-photos.component';
 import { GooglePhotosController } from 'src/app/core/http/file/google-photos.controller';
 import { FileService } from '../../shared/services/file.service';
 import { MyFileModule } from '../../shared/modules/file.module';
-import { FormListener } from 'src/app/shared/services/form.listener';
+import { FormListener } from 'src/app/shared/listeners/form.listener';
 import { FileFormHelper } from 'src/app/shared/services/helper/file-form.helper';
 
 @NgModule({

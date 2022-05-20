@@ -24,19 +24,19 @@ export class LocalDropController extends FileController implements MyFileControl
     super();
     this.fileList = new FileList();
     this.fileList.add(this.root);
-    const folderA = this.fileList.createFolder({id : FileList.v4(), name: 'Folder _A', parentId: this.root.id }); 
-    this.fileList.createFolder({id : FileList.v4(), name: 'aa', parentId: this.root.id }); 
-    const folderAB = this.fileList.createFolder({id: FileList.v4(), name: 'Folder BB', parentId: folderA.id });
-    this.fileList.createFolder({id: FileList.v4(), name: 'aa', parentId: folderA.id });
-    this.fileList.createFolder({id: FileList.v4(), name: 'Folder ABC', parentId: folderAB.id });
-    this.fileList.createFile({id: FileList.v4(), name: 'File ABC', parentId: folderAB.id });
-    this.fileList.createFolder({ id: FileList.v4(), name: 'Folder E', parentId: this.root.id });
-    this.fileList.createFolder({id: FileList.v4(), name: 'Folder C', parentId: this.root.id });
-    this.fileList.createFile({id: FileList.v4(), name: 'File A', parentId: this.root.id }); 
-    this.fileList.createFile({id: FileList.v4(), name: 'File B', parentId: this.root.id }); 
+    const folderA = this.fileList.createFolder({ name: 'Folder _A', parentId: this.root.id }); 
+    this.fileList.createFolder({ name: 'aa', parentId: this.root.id }); 
+    const folderAB = this.fileList.createFolder({name: 'Folder BB', parentId: folderA.id });
+    this.fileList.createFolder({ name: 'aa', parentId: folderA.id });
+    this.fileList.createFolder({ name: 'Folder ABC', parentId: folderAB.id });
+    this.fileList.createFile({name: 'File ABC', parentId: folderAB.id });
+    this.fileList.createFolder({name: 'Folder E', parentId: this.root.id });
+    this.fileList.createFolder({ name: 'Folder C', parentId: this.root.id });
+    this.fileList.createFile({ name: 'File A', parentId: this.root.id }); 
+    this.fileList.createFile({ name: 'File B', parentId: this.root.id }); 
 
     for (let i =1; i<10000 ; i++) {
-      this.fileList.createFolder({ id: FileList.v4(), name: 'Folder '+i, parentId: this.root.id });
+      this.fileList.createFolder({  name: 'Folder '+i, parentId: this.root.id });
     }
 
   }
@@ -44,7 +44,7 @@ export class LocalDropController extends FileController implements MyFileControl
   override create$(q: MyFileCreateQuery): Observable<void> {
     return this.observable(
       this.fileList.createFolder({
-        id: FileList.v4(), name: q.name!, parentId: q.driveId!
+        name: q.name!, parentId: q.driveId!
       })
     );
     //this.fileList.sortbyNameASC(parentId);

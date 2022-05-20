@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { ElementPositionPipe } from 'src/app/shared/pipes/element-position';
 
 @Component({
   selector:"my-error-control",
@@ -8,10 +9,22 @@ import { FormControl } from '@angular/forms';
 })
 export class ErrorControlComponent {
   @Input() control: FormControl = new FormControl();  
-  @Input() validForm: boolean = true;
-  constructor( ) {   }
+  @Input() input!: HTMLElement;
+  style: string | null = "";
 
-  ngOnInit() {  }
+  constructor(private positionPipe: ElementPositionPipe) { }
+
+  ngOnInit() { 
+    this.control.statusChanges.subscribe(changes => {
+      if (this.control.pending || this.control.valid) return;
+      this.style = this.positionPipe.transform(this.input, {
+        h:1, top:10, position:'absolute'
+      })
+    })
+
+   }
+
+
 
 }
 

@@ -1,57 +1,54 @@
-import { Component, Inject } from '@angular/core';
-import { FormListener } from 'src/app/shared/services/form.listener';
-import { MyMoveOptionFileForm, MyOptionsFile } from 'src/app/shared/models/form/my-file-form';
+import { Component } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { MyRadioControl, MyRadioValue } from 'src/app/shared/models/abstract/my-form';
+import { MyMovingFileForm } from 'src/app/shared/models/file/my-file-form';
+import { FormListener } from '../../../listeners/form.listener';
 
 @Component({
   selector:"my-move-option-file",
   template:`<my-dialog-header>Import Options</my-dialog-header>
             <div class="modal-body">
               <p>One or more elements already exist</p>
-              <div *ngFor="let select of selections | keyvalue"
+              <div *ngFor="let elem of selections | keyvalue"
                 class="form-check"
               >
-                <input class="form-check-input" 
-                  type="radio" 
-                  name="flexRadioDefault" 
-                  [checked]="model.selected == select.key"
-                  [value]="select.key"
-                  [(ngModel)]="model.selected"
+                <input  type="radio" 
+                  class="form-check-input" 
+                  [value]="elem.key"
+                  [formControl]="control"
                 >
                 <label class="form-check-label" 
-                  (click)="model.selected = select.key"
+                  (click)="control.setValue(elem.key)"
                 >
-                  {{select.value}}
+                  {{elem.value}}
                 </label>
               </div>
             </div>
             <my-dialog-footer ></my-dialog-footer>`,
-  providers: [
+/*   providers: [
     FormListener
-  ]
+  ] */
   //styleUrls: ['../../../../../assets/scss/dialog.css']
 })
 export class MoveOptionFileComponent {
-  model: MyMoveOptionFileForm = {selected:MyOptionsFile.KEEP};
-  selections: Map<MyOptionsFile, string> 
+  selections: Map<MyRadioValue, string> 
+  control: FormControl;
 
-  constructor(public formListener: FormListener ) { 
-    this.selections = new Map<MyOptionsFile, string>();
-    this.selections.set(MyOptionsFile.REPLACE, "Replace Existing files");
-    this.selections.set(MyOptionsFile.KEEP, "Keep all files");
-   // this.submit$ = new BehaviorSubject<MySubmitForm>({});
-    // this.model$ = new BehaviorSubject<MySingleExistForm | undefined>(undefined)
+  constructor(public listen: FormListener )  {
+    //(<any>this.listen.model).moving.value = MyRadioValue.KEEP
+    this.control = (<MyMovingFileForm> this.listen.model).moving.control!;
+    this.selections = new Map<MyRadioValue, string>();
+    this.selections.set(MyRadioValue.REPLACE, "Replace Existing files");
+    this.selections.set(MyRadioValue.KEEP, "Keep all files");
   }
-
 
   ngOnInit() {
-    this.formListener.submit$.next({valid:true});
-    this.formListener.submit$.subscribe(submit => {
+   // this.listener.submit$.next({valid:true});
+/*     this.listener.submit$.subscribe(submit => {
         if (!submit.save) return;
-        this.formListener.model$.next(this.model);
-    });
+        this.listener.model$.next(this.model);
+    }); */
   }
-
-
 
 }
 

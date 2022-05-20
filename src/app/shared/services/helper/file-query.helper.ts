@@ -5,7 +5,6 @@ import { MyFilesMoveQuery, MyFileUpdateQuery } from "../../models/file/my-file-q
 @Injectable()
 export class FileQueryHelper {
 
-
   constructor( ) { }
  
   hasName(fileName: string, files: MyFile[]) {

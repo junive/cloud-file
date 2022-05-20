@@ -1,34 +1,58 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, Subject } from "rxjs";
+import { Inject, Injectable } from "@angular/core";
+import { Validators } from "@angular/forms";
+import { Subject } from "rxjs";
 import { CreateFolderComponent } from "../../components/file/forms/create-folder.component";
 import { MoveOptionFileComponent } from "../../components/file/forms/move-option.component";
 import { RenameFileComponent } from "../../components/file/forms/rename-file.component";
-import { MyMoveOptionFileForm } from "../../models/form/my-file-form";
-import { MyForm, MySingleExistForm, MySubmitForm } from "../../models/form/my-form";
+import { ValueExistDirective } from "../../directives/value-exist.directive";
+import { FormListener } from "../../listeners/form.listener";
+import { MyForm, MyRadioControl, MyRadioValue, MyTextControl } from "../../models/abstract/my-form";
+import { MyMovingFileForm, MyNamingFileForm } from "../../models/file/my-file-form";
 import { DialogListener } from "../dialog.listener";
 
 @Injectable()
 export class FileFormHelper {
 
-  constructor( private dialogListener: DialogListener  ) {  }
+  constructor(private listener: FormListener,
+              private dialogService: DialogListener,
+              private existDirective: ValueExistDirective ) { }
   
-  openDialog$(FormComponent: any, model?: MyForm) {
-    this.dialogListener.open( FormComponent );
-    const formListener = this.dialogListener.getComponent().formListener;
-    if (model) formListener.setModel(model)
-    return formListener.getModel$();
+
+  getNamingModel(driveId: string, name?: string) {
+    return <MyNamingFileForm> { 
+      naming : {
+        value: name,
+        asyncs : [  
+          this.existDirective.validator({
+            key: 'name',
+            value: name ?? "",
+            query: <any> { driveId: driveId }
+          })
+        ],
+        validators : [Validators.required]
+      }
+    }
   }
 
-  renameFile$(model: MySingleExistForm) : Subject<MySingleExistForm> {
+  openDialog$(FormComponent: any, model?: MyForm) : any {
+    this.listener.init(model);
+    this.dialogService.open( FormComponent );
+    return this.listener.model$;
+  }
+
+  renameFile$(driveId: string, name: string) : Subject<MyNamingFileForm> {
+    const model = this.getNamingModel(driveId, name);
     return this.openDialog$(RenameFileComponent, model);
   }
 
-  createFolder$(model: MySingleExistForm) : Subject<MySingleExistForm>  {
+  createFolder$(driveId: string) : Subject<MyNamingFileForm>  {
+    const model = this.getNamingModel(driveId);
     return this.openDialog$(CreateFolderComponent, model);
   }
 
-  moveOptionFile$(): Subject<MyMoveOptionFileForm>  {
-    return this.openDialog$(MoveOptionFileComponent)
+  moveOptionFile$(): Subject<MyMovingFileForm>  {
+    const model = <MyMovingFileForm> { moving : {value: MyRadioValue.KEEP}}
+    return this.openDialog$(MoveOptionFileComponent, model)
   }
 
 }

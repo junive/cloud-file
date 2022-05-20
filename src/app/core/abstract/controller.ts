@@ -1,6 +1,7 @@
 import { combineLatest, Observable } from "rxjs";
-import { MyController, MyData } from "src/app/shared/models/http/my-controller";
-import { MyCreateQuery, MyGetListQuery, MyUpdateQuery } from "src/app/shared/models/http/my-query";
+import { MyController } from "../../shared/models/abstract/my-controller";
+import { MyCreateQuery, MyGetListQuery, MyUpdateQuery } from "../../shared/models/abstract/my-query";
+import { MyData } from "../../shared/models/abstract/my-data";
 
 
 export abstract class Controller implements MyController{
