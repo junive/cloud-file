@@ -1,6 +1,6 @@
 Hello App
 
-<a routerLink="./local-drop">Local</a>
-<a routerLink="./google-photos">---Google Photos</a>
+<a [routerLink]="['/local-drop', 'home']">Local</a>
+<a [routerLink]="['/google-photos', 'home']">---Google Photos</a>
 
 <router-outlet ></router-outlet>

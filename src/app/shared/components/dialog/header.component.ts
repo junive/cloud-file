@@ -1,26 +1,27 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { DialogListener } from "../../services/dialog.listener";
+import { Component } from "@angular/core";
+import { DialogService } from "../../services/dialog.service";
 
 @Component({
   selector: "my-dialog-header",
-  template: ` <div class="modal-header">
-                <h5 class="modal-title">
-                  <ng-content></ng-content>
-                </h5>
-                <button type="button" 
-                  class="btn-close" 
-                  aria-label="Close"
-                  (click)="dismiss()">
-                </button>
-              </div>`,
-  styleUrls: ['../../../../assets/scss/dialog.css']
+  template: ` 
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <ng-content></ng-content>
+      </h5>
+      <button type="button" 
+        class="btn-close" 
+        aria-label="Close"
+        (click)="dismiss()">
+      </button>
+    </div>`,
+  styleUrls: ['../../../../assets/scss/shared/dialog.css']
 })
 
 export class DialogHeaderComponent {
 
-  constructor(private service: DialogListener) {}
+  constructor(private dialogService: DialogService) {}
 
   dismiss() {
-    this.service.dismiss();
+    this.dialogService.dismiss();
   }
 }

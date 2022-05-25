@@ -1,0 +1,42 @@
+<ul class="dropdown-menu"
+  [class.show]="!menu.context.hide"
+  [style]="menu.context.style"
+>
+  <li>
+    <a class="dropdown-item"
+      role="button" 
+      [class.disabled]="selectids.length > 1"
+      (click)="renameFileEmit()"
+    > Rename </a>
+  </li>
+  <li>
+    <a class="dropdown-item"
+      role="button"
+      (click)="deleteFileEmit()"
+    > Delete </a>
+  </li>
+  <li *ngIf="enableMoveFiles()" #buttonMove>
+    <a class="dropdown-item"
+      role="button"
+      (mouseover)="openMenu(buttonMove, menu.move)"
+      (mouseout)="menu.move.hide = true"
+    > Move To ></a>
+  </li>
+</ul> 
+
+<ul class="dropdown-menu"
+  [class.show]="!menu.move.hide"
+  [style]="menu.move.style"
+  (mouseout)="menu.move.hide = true"
+  (mouseover)="menu.move.hide = false"
+>
+  <cdk-virtual-scroll-viewport itemSize="10"  style="height: 500px">
+    <li *cdkVirtualFor="let file of files" >
+      <a *ngIf="file.isFolder && selectids[0] !== file.id" 
+        class="dropdown-item"
+        role="button"
+        (click)="moveFilesEmit(file.id!)"
+      > {{ file.name }}</a>
+    </li>
+  </cdk-virtual-scroll-viewport>
+</ul>  

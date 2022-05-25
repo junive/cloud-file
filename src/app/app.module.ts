@@ -12,11 +12,6 @@ import { AppRoutingModule } from './app-routing.module';
     BrowserModule,
     AppRoutingModule, 
     RouterModule,
-    
-    //InputSharedModule,
-    //MyDialogModule, // Doesn't use selectors
-    //MyProviderModule
-    //FileSharedModule,
   ],
   providers: [
 

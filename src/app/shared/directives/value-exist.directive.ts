@@ -1,10 +1,9 @@
-import { Directive, ElementRef, Inject, Input } from '@angular/core';
+import { Directive, Inject, Input } from '@angular/core';
 import { AbstractControl, AsyncValidator, AsyncValidatorFn,  NG_ASYNC_VALIDATORS,  ValidationErrors } from '@angular/forms';
 import { distinctUntilChanged, map, Observable, of, switchMap, take, timer } from 'rxjs';
-import { Controller } from 'src/app/core/abstract/controller';
-import { MyValueExistValidator } from '../models/abstract/my-validator';
-
-import { MyData } from '../models/abstract/my-data';
+import { Controller } from '../../core/controllers/abstract/controller';
+import { MyValueExistValidator } from '../models/my-validator';
+import { MyData } from '../models/my-data';
 
 @Directive({
   selector: '[valueExist], [nameExist]',

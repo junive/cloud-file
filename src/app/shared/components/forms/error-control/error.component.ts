@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ElementPositionPipe } from 'src/app/shared/pipes/element-position';
+import { ElementPositionPipe } from '../../../pipes/element-position';
 
 @Component({
   selector:"my-error-control",
   templateUrl:"./error-control.html",
-  //styleUrls: ['../../../../../assets/scss/dialog.css']
+  styleUrls: ['../../../../../assets/scss/shared/error-control.css']
 })
 export class ErrorControlComponent {
   @Input() control: FormControl = new FormControl();  

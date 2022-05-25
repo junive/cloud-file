@@ -1,20 +1,11 @@
 import { Component } from "@angular/core";
-import { FileService } from "../../../shared/services/file.service";
 
 @Component({
-  //selector: "my-explorer-local",
+  selector: "my-local-drop-home",
   templateUrl: './local-drop.html',
-  styleUrls: ['../../../../assets/scss/file.css'],
+  styleUrls: ['../../../../assets/scss/features/local-drop.css'],
 })
 
 export class LocalDropComponent{
-  constructor(public service: FileService) { 
-
-  
-  }
-  
-  /*
-  get localService() {
-    return this.service;
-  }*/
+  constructor() { }
 }

@@ -2,22 +2,17 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
-  { 
-    path:'',
-    redirectTo: 'home',
-    pathMatch: 'full'
-  }, {
-    path:'home',
-    loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule)
-  } 
-   /* {
-    path:'local-drop',
-    loadChildren: () => import('./modules/local-drop/local-drop.module').then(m => m.LocalDropModule)
-  },
+  { path:'',  redirectTo: '/local-drop/home', pathMatch: 'full'}, 
+  { path:'local-drop', redirectTo: '/local-drop/home', pathMatch: 'full' },
+  { path:'google-photos', redirectTo: '/google-photos/home', pathMatch: 'full' },
   {
-    path:'google-photos',
-    loadChildren: () => import('./modules/google-photos/google-photos.module').then(m => m.GooglePhotosModule)
-  }  */
+    path:'local-drop/:driveId',
+    loadChildren: () => import('./features/local-drop/local-drop.module').then(m => m.LocalDropModule)
+  },{
+    path:'google-photos/:driveId',
+    loadChildren: () => import('./features/google-photos/google-photos.module').then(m => m.GooglePhotosModule)
+  },
+
 ];
 
 @NgModule({

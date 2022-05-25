@@ -1,4 +1,4 @@
-import { HostListener, Pipe } from "@angular/core";
+import { Pipe } from "@angular/core";
 
 @Pipe({name: 'elementPosition', pure: false})
 export class ElementPositionPipe {

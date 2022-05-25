@@ -1,12 +1,11 @@
 import { Component } from "@angular/core";
-import { FileService } from "../../../shared/services/file.service";
 
 @Component({
-  //selector: "my-explorer-google-photos",
+  selector: "my-google-photos-home",
   templateUrl: './google-photos.html',
-  styleUrls: ['../../../../assets/scss/file.css'],
+  styleUrls: ['../../../../assets/scss/features/google-photos.css'],
 })
 export class GooglePhotosComponent  {
-  constructor(public service: FileService) {  }
+  constructor() {  }
 }
 

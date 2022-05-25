@@ -1,34 +1,24 @@
 import { NgModule } from '@angular/core';
-import { GooglePhotosRoutingModule, } from './google-photos-routing.module';
+import { RouterModule } from '@angular/router';
 import { GooglePhotosComponent } from './components/google-photos.component';
-import { GooglePhotosController } from 'src/app/core/http/file/google-photos.controller';
-import { FileService } from '../../shared/services/file.service';
-import { MyFileModule } from '../../shared/modules/file.module';
-import { FormListener } from 'src/app/shared/listeners/form.listener';
-import { FileFormHelper } from 'src/app/shared/services/helper/file-form.helper';
+import { GooglePhotosController } from '../../core/controllers/file/google-photos.controller';
+import { MyFileModule } from '../../shared-files/file.module';
+import { Controller } from '../../core/controllers/abstract/controller';
+import { FileRamStorage } from '../../core/storage/file-ram.storage';
+
 
 @NgModule({
   declarations: [
     GooglePhotosComponent
   ],
   imports: [
-   // FileModule,
     MyFileModule,
-    GooglePhotosRoutingModule
-   // FormsModule,
-   // ReactiveFormsModule,
-   
+    RouterModule.forChild([{ path: '', component: GooglePhotosComponent }])
   ],
   providers: [
-
-    GooglePhotosController,
-    { provide: FileService,  deps : [GooglePhotosController] }
-  ],
-  exports: [
-    
+    FileRamStorage,
+    { provide: Controller,  useClass: GooglePhotosController },
   ],
 })
 
-export class GooglePhotosModule {
-
- }
+export class GooglePhotosModule { }
